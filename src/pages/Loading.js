@@ -1,5 +1,4 @@
 import React from 'react'
-import Layout from '../components/Layout'
 import Spinner from 'react-bootstrap/Spinner';
 import { Container } from 'react-bootstrap';
 
