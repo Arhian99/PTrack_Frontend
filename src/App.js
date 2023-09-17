@@ -8,8 +8,6 @@ import {Routes, Route} from 'react-router-dom';
 import DoctorLounge from './pages/DoctorLounge';
 import PatientLounge from './pages/PatientLounge';
 import Authenticate from './pages/Authenticate';
-import Loading from './pages/Loading'
-import RequireAuth from './components/RequireAuth';
 import Unauthorized from './pages/Unauthorized';
 import Unconfirmed from './pages/Unconfirmed';
 import ProtectedRoutes from './components/ProtectedRoutes';
@@ -32,8 +30,8 @@ function App() {
       <Route path='/unconfirmed'  element={<Unconfirmed />} />
 
       {/* protected routes */}
-      <Route path='/' element={<ProtectedRoutes />} >
-        <Route index element={<Home />} />
+      <Route element={<ProtectedRoutes />} >
+        <Route path='/' element={<Home />} />
         <Route path="patient" element={<PatientLounge />} />
         <Route path="doctor" element={<DoctorLounge />} />
       </Route>

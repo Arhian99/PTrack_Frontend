@@ -1,25 +1,32 @@
-import React, { useState } from 'react'
+import React from 'react'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import * as Yup from 'yup';
 import axios from '../api/axios';
 import useAuth from '../hooks/useAuth';
 import { useFormik } from 'formik';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FormControl } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { Alert, FormControl } from 'react-bootstrap';
 import {formatBackendRegistrationURL} from '../utils/utilities'
-import Loading from '../pages/Loading';
 
-export default function RegisterForm() {
-    const {user, setUser} = useAuth();
-    const [loading, setLoading] = useState(false);
+/*
+Register Form Component
+Handles frontend form validation using Yup validation Schema and Formik for styling and validation styling logic.
+Handles sending request to backend auth API depending on the role chosen.
+Handles backend responses by either displaying error messages or redirecting user to Home Page or Unauthorized Page
+Uses Axios to send POST request to backend auth API
+Takes errorMessage prop from Authenticate page which is the state variable that stores whether or not the backend returned an error code. (this state variable is shared with LoginForm component so it was raised)
+*/
+export default function RegisterForm({errorMessage, setLoading}) {
+    // gets setUser function from global auth user context using the custom useAuth() hook
+    const {setUser} = useAuth();
 
-    //navigation
+    //navigation. Navigate is a navigation object returned by useNavigate() which is a built in react router custom hook
     const navigate = useNavigate();
-    const location = useLocation();
-    const from = location.state?.from?.pathname || "/";
 
-    // handles forms
+
+    // Formik is used for form styling, frontend input validation and styling
+    // Yup is the frontend validation schema
     const formik = useFormik({
         initialValues: {
             email:'',
@@ -45,9 +52,14 @@ export default function RegisterForm() {
         }),
         // formik passes form values as 'values' object
         onSubmit: async (values) => {
+            // loading is set to true when we send the response to the backend and are waiting on it.
             setLoading(true)
+            // error messages are reset
+            errorMessage.setErrorMessage(null)
+
             // formats backend auth api url based on role chosen by user /auth/save/user or /auth/save/doctor
             let url = formatBackendRegistrationURL(values.roles);
+            // use AXIOS to send POST request to the backend
             try {
                 // post request to backend auth api
                 const response = await axios.post(
@@ -61,31 +73,33 @@ export default function RegisterForm() {
                     }
                 );
                 
+                // when code reaches here, the backend response has returned so loading is set to false
                 setLoading(false)
                 if(response.status === 201){
                     if(response.data !== undefined) {
                         setUser(response.data); // setting global auth user
-                        
-                    } else if (response.data !== undefined){
-                        setUser(response.data); // setting global auth user
-                    }
+                    } 
+                    //TODO: Debuging purposes, delete
                     console.log("Registration success!")
-                    // navigation
+                    // navigation to /unconfirmed page becasue by default, new users have not confirmed their email.
                     navigate("/unconfirmed");
 
-                } else if(response.status >= 400) {
-                    // TODO: HANDLE CASES
-                    // case 1: returns 400 with message 'Email is already in use'
-                    // case 2: returns 400 with message 'Username is already taken'
-
-                    console.log("Registration failed!")
-                    
-                    // navigation
-                    navigate("/");
                 }
                 
             } catch(error) {
-                // TODO: HANDLE ALL ERRORS
+                // if an error is thrown from the backend, we set loading to false sinc backend responded
+                setLoading(false)
+                // set error message according to the error returned from the backend
+                switch(error.response.data){
+                    case "Error: Email is already in use! Please login":
+                        errorMessage.setErrorMessage("Email is already in use. Please login!")
+                        break;
+                    case "Error: Username is already in taken!":
+                        errorMessage.setErrorMessage("Username is already taken. Please choose another!")
+                        break;
+                }
+
+                //TODO: Debuging purposes, delete
                 console.log(error.response.data)
                 console.log(error.message)
             }
@@ -94,8 +108,12 @@ export default function RegisterForm() {
 
     return(
         // react form code, handles form control to formik
-        loading ? <Loading /> :
+        // form component takes formik.handleSubmit function as onSubmit function
+        // the onChange, onBlur, and values props in the form components are mapped to the formik's object function and properties respectively
+        // therefore handing control of the form to formik library
             <Form style={{width: "350px"}} onSubmit={formik.handleSubmit} >
+                {/* Checks if there are any error messages returned from the backend, if so it displays them*/ }
+                {errorMessage.errorMessage !== null ? <Alert variant='danger'>{`${errorMessage.errorMessage}`}</Alert> : null}
                 <Form.Group className="mb-2" controlId="email">
                     <Form.Label>Email: </Form.Label>
                     <Form.Control 

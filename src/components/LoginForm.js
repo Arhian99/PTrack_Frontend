@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect } from 'react'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import * as Yup from 'yup';
@@ -8,7 +8,6 @@ import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { Alert, FormControl } from 'react-bootstrap';
 import {formatBackendLoginURL} from '../utils/utilities'
-import Loading from '../pages/Loading';
 
 /*
 Login Form Component
@@ -16,14 +15,19 @@ Handles frontend form validation using Yup validation Schema and Formik for styl
 Handles sending request to backend auth API depending on the role chosen.
 Handles backend responses by either displaying error messages or redirecting user to Home Page or Unauthorized Page
 Uses Axios to send POST request to backend auth API
+Takes errorMessage prop from Authenticate page which is the state variable that stores whether or not the backend returned an error code. (this state variable is shared with RegisterForm component so it was raised)
 */
-export default function LoginForm() {
+export default function LoginForm({errorMessage, setLoading}) {
     const {setUser} = useAuth(); // imports setUser function from global auth context using custom useAuth() hook
-    const [loading, setLoading] = useState(false); // set true when page is waiting for backend response
-    const [errorMessage, setErrorMessage] =useState(null); // stores errorMessage from backend if any
 
     // navigation
     const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programatically.
+
+    useEffect(() => {
+        console.log(errorMessage)
+        console.log(setLoading)
+    }, [])
+
 
     // form controls, frontend form validation, and form styling using Formik and Yup 
     const formik = useFormik({
@@ -49,7 +53,7 @@ export default function LoginForm() {
         onSubmit: async (values) => {
             // upon form submission we set loading to true and reset the error state (setErrorMessage(null))
             setLoading(true)
-            setErrorMessage(null)
+            errorMessage.setErrorMessage(null)
 
             // format url according to role. /auth/login/user or /auth/login/doctor
             let url = formatBackendLoginURL(values.roles);
@@ -96,18 +100,22 @@ export default function LoginForm() {
                     navigate("/unconfirmed") // account is not confirmed
                 } else if(error.response.status === 400) {
                     // if backend responds with HTTP status 400 it could either be wrong email, wrong password, or wrong role
-                    // catches backend error messages and sets error state accordingly
+                    // catches backend error messages and sets error state accordingly (the cases are the error messages returned by backend auth API)
                     switch (error.response.data) {
                         case "Incorrect email or password.": 
-                            setErrorMessage("Incorrect Password. Try again!");
+                            errorMessage.setErrorMessage("Incorrect Password. Try again!");
                             break;
 
                         case "Error: Please choose correct role.":
-                            setErrorMessage("Please choose the correct role.");
+                            errorMessage.setErrorMessage("Please choose the correct role.");
                             break;
 
                         case "Error: User does not exist, please register.":
-                            setErrorMessage("Email not found. Try again or Sign Up!");
+                            errorMessage.setErrorMessage("Email not found. Try again or Sign Up!");
+                            break;
+
+                        case "Error: Doctor does not exist, please register.":
+                            errorMessage.setErrorMessage("Email not found. Try again or Sign Up!");
                             break;
                     }
                 }
@@ -119,14 +127,13 @@ export default function LoginForm() {
     })
 
     return(
-        // Renders Loading Component/ Screen if Loading
-        loading ? <Loading /> :
-        // form component takes formik.handle submit function as onSubmit function
+        // form component takes formik.handleSubmit function as onSubmit function
         // the onChange, onBlur, and values props in the form components are mapped to the formik's object function and properties respectively
         // therefore handing control of the form to formik library
         <Form style={{width: "350px"}} onSubmit={formik.handleSubmit} >
             {/* Renders Alert component with error message if any */}
-            { errorMessage!==null ? <Alert variant='danger' > {`${errorMessage}`} </Alert> : null }
+            {/* Checks if there are any error messages returned from the backend, if so it displays them*/ }
+            { errorMessage.errorMessage!==null ? <Alert variant='danger' > {`${errorMessage.errorMessage}`} </Alert> : null }
 
             <Form.Group className="mb-2" controlId="email">
                 <Form.Label>Email: </Form.Label>
@@ -205,10 +212,6 @@ export default function LoginForm() {
                 Submit
             </Button> 
         </Form>
-
-        
-        
-
     )
 
 
