@@ -5,21 +5,27 @@ import * as Yup from 'yup';
 import axios from '../api/axios';
 import useAuth from '../hooks/useAuth';
 import { useFormik } from 'formik';
-import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { FormControl } from 'react-bootstrap';
+import { useNavigate } from 'react-router-dom';
+import { Alert, FormControl } from 'react-bootstrap';
 import {formatBackendLoginURL} from '../utils/utilities'
 import Loading from '../pages/Loading';
 
-
+/*
+Login Form Component
+Handles frontend form validation using Yup validation Schema and Formik for styling and validation styling logic.
+Handles sending request to backend auth API depending on the role chosen.
+Handles backend responses by either displaying error messages or redirecting user to Home Page or Unauthorized Page
+Uses Axios to send POST request to backend auth API
+*/
 export default function LoginForm() {
-    const {user, setUser} = useAuth();
-    const [loading, setLoading] = useState(false);
+    const {setUser} = useAuth(); // imports setUser function from global auth context using custom useAuth() hook
+    const [loading, setLoading] = useState(false); // set true when page is waiting for backend response
+    const [errorMessage, setErrorMessage] =useState(null); // stores errorMessage from backend if any
 
     // navigation
-    const navigate = useNavigate(); // provided by react router allows to navigate programmatically
-    const location = useLocation(); // provided by react router, returns location object
-    const from = location.state?.from?.pathname || "/"; // returns URL of where user was coming from 
+    const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programatically.
 
+    // form controls, frontend form validation, and form styling using Formik and Yup 
     const formik = useFormik({
         initialValues: {
             email:'',
@@ -39,15 +45,20 @@ export default function LoginForm() {
         }),
 
 
-        // formik passes form values as 'values'
+        // formik passes form values as 'values' object 
         onSubmit: async (values) => {
+            // upon form submission we set loading to true and reset the error state (setErrorMessage(null))
             setLoading(true)
+            setErrorMessage(null)
+
             // format url according to role. /auth/login/user or /auth/login/doctor
             let url = formatBackendLoginURL(values.roles);
+
             try {
+                // uses axios to send POST request to backend auth API
                 const response = await axios.post(
-                    url,  // auth api url
-                    values, // form values
+                    url,  // backend auth API URL
+                    values, // form values (request body)
                     {
                         headers: {
                             'Content-Type': 'application/json',
@@ -56,54 +67,67 @@ export default function LoginForm() {
                         }
                     }
                 );
-                console.log(response)
+
+                //TODO: Debuging purposes, delete
+                console.log("Login Response: ")
+                console.log(response);
+
+                // after post request has returned, we set loading to false (no longer waiting for backend response)
                 setLoading(false)
-                // check response 
+
+                // if backend response is HTTP status 200, user successfully authenticated
                 if(response.status === 200){
-                    console.log(response)
-                    if(response.data !== undefined) {
-                        setUser(response.data); // setting global auth user
-                        
-                    } else if (response.data !== undefined){
-                        setUser(response.data); // setting global auth user
-                    }
+                    setUser(response.data)
+
+                    //TODO: Debuging purposes, delete
                     console.log("Authentication Success!")
 
-                    // navigate to whatever page you were trying to access
-                    navigate(from, {replace: true});
+                    // user has been authenticated, therefore navigate to home
+                    navigate("/");
                 } 
                 
-                // if(response.status >= 400) {
-                //     // TODO: HANDLE CASES. 
-                //     // 400: Bad Credentials
-                //     // 401: Unauthorized --> isEnabled = false (requires account confirmation in email)
-
-                //     console.log("Authentication Failed!")
-                //     // navigation
-                //     navigate("/");
-                // }
-                
             } catch(error) {
+                // if an error is thrown, the backend has responded therefore no longer loading
                 setLoading(false)
+
+                //TODO: look into this 
+                // if backend responds with HTTP status 401 user is disabled
                 if(error.response.status === 401){
                     navigate("/unconfirmed") // account is not confirmed
-                } else if(error.response.status ===400) {
-                    //TODO: Display message in UI
-                    console.log("Bad Credentials, Try again")
+                } else if(error.response.status === 400) {
+                    // if backend responds with HTTP status 400 it could either be wrong email, wrong password, or wrong role
+                    // catches backend error messages and sets error state accordingly
+                    switch (error.response.data) {
+                        case "Incorrect email or password.": 
+                            setErrorMessage("Incorrect Password. Try again!");
+                            break;
+
+                        case "Error: Please choose correct role.":
+                            setErrorMessage("Please choose the correct role.");
+                            break;
+
+                        case "Error: User does not exist, please register.":
+                            setErrorMessage("Email not found. Try again or Sign Up!");
+                            break;
+                    }
                 }
-                
+                //TODO: Debuging purposes, delete
                 console.log(error.response)
-                // TODO: HANDLE ALL ERRORS... Catch Unauthorized errors, wrong email/password and display it in form
+                console.log(errorMessage)
             }
         }
     })
 
-// <Alert variant='success' > Registration Success! Please Log In </Alert>
-
-
     return(
+        // Renders Loading Component/ Screen if Loading
         loading ? <Loading /> :
+        // form component takes formik.handle submit function as onSubmit function
+        // the onChange, onBlur, and values props in the form components are mapped to the formik's object function and properties respectively
+        // therefore handing control of the form to formik library
         <Form style={{width: "350px"}} onSubmit={formik.handleSubmit} >
+            {/* Renders Alert component with error message if any */}
+            { errorMessage!==null ? <Alert variant='danger' > {`${errorMessage}`} </Alert> : null }
+
             <Form.Group className="mb-2" controlId="email">
                 <Form.Label>Email: </Form.Label>
                 <Form.Control 
