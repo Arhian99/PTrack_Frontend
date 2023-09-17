@@ -3,14 +3,12 @@ import { Button } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom'
 
 export default function Unauthorized() {
-    const navigate = useNavigate();
-    function goBack(){
-        return navigate(-1)
-    }
+  const navigate = useNavigate();
+
   return (
     <>
-        <h1>Unauthorized :(</h1>
-        <Button onClick={goBack}>Go Back</Button>
+        <h1> Unauthorized :( </h1>
+        <Button onClick={navigate(-1)}>Go Back</Button>
     </>
 
   )

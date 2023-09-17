@@ -23,12 +23,6 @@ export default function LoginForm({errorMessage, setLoading}) {
     // navigation
     const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programatically.
 
-    useEffect(() => {
-        console.log(errorMessage)
-        console.log(setLoading)
-    }, [])
-
-
     // form controls, frontend form validation, and form styling using Formik and Yup 
     const formik = useFormik({
         initialValues: {

@@ -1,13 +1,13 @@
 import React from 'react'
 import { Button } from 'react-bootstrap';
-import { useNavigate, useLocation } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import useAuth from "../hooks/useAuth";
 
 
 export default function Unconfirmed() {
-  const {user, setUser} = useAuth();
+  const {setUser} = useAuth();
     const navigate = useNavigate();
-    const location = useLocation(); // provided by react router, returns location object
+    
     function logout() {
       setUser(null);
       navigate("/authenticate")
