@@ -32,7 +32,7 @@ function Authenticate() {
     return (
         // if loading displays the loading component, otherwise it displays the forms
         loading ? <Loading /> :
-            <Container className="my-4 d-flex flex-column justify-content-center align-items-center" >
+            <Container className="d-flex flex-column justify-content-center align-items-center" >
                 <ToggleButtonGroup className="mb-3" style={{width: "350px"}} type="radio" value={activeForm} name="roles">
                     <ToggleButton variant='primary' 
                         value={'login'} 
