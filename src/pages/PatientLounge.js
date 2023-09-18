@@ -1,6 +1,7 @@
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import { Button } from "react-bootstrap";
+import { useEffect } from "react";
 
 
 export default function PatientLounge() {
@@ -11,6 +12,12 @@ export default function PatientLounge() {
     return navigate(-1);
   }
 
+  useEffect(() => {
+    if(user?.user.roles[0].name !== "ROLE_USER") {
+      navigate("/unauthorized")
+    }
+  }, [])
+
   return (
     <div>
       <h1>Welcome to the Patient's Lounge</h1>
@@ -18,11 +25,7 @@ export default function PatientLounge() {
       <ul>
         <li>Username: {user?.user?.username}</li>
         <li>Email: {user?.user?.email}</li>
-        <li>Role: 
-          <ul>
-            {user?.user?.roles.map(role => <li>{role.name}</li>)}
-          </ul>
-        </li>
+        <li>Role: {user?.user.roles[0].name}</li>
       </ul>
       <Button onClick={goBack}>Go Back</Button>
     </div>

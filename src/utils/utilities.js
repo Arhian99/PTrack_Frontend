@@ -1,5 +1,4 @@
 
-
 export function formatBackendRegistrationURL(activeRole) {
     let url = "/auth/save";
     if(activeRole === 'ROLE_USER'){

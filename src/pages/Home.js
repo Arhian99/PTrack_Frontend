@@ -5,17 +5,18 @@ import useAuth from '../hooks/useAuth';
 
 export default function Home() {
   const {user, setUser } = useAuth();
-  console.log(user)
+  const userRole = user?.user.roles[0].name;
 
   return (
     <Container>
         <h1>Welcome {user?.user.username}</h1>
         <ul>
-          <li><NavLink to="/doctor" >Doctor Lounge</NavLink></li>
-          <li><NavLink to="/patient" >Patient Lounge</NavLink></li>
+          {userRole === "ROLE_DOCTOR" 
+            ? <li><NavLink to="/doctor" key={userRole}>Doctor Lounge</NavLink></li>
+            : <li><NavLink to="/patient" >Patient Lounge</NavLink></li>
+          }
         </ul>
         <Button onClick={() => setUser(null)}>Logout</Button>
     </Container>
-    
   )
 }

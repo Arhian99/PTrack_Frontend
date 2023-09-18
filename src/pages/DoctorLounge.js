@@ -1,4 +1,4 @@
-import React from 'react'
+import React, {useEffect} from 'react'
 import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Button } from 'react-bootstrap';
@@ -11,6 +11,12 @@ export default function DoctorLounge() {
     function goBack() {
         return navigate(-1);
     }
+    useEffect(() => {
+        if(user?.user.roles[0].name !== "ROLE_DOCTOR") {
+          navigate("/unauthorized")
+        }
+    }, [])
+
   return (
     <div>
         <h1>Welcome to the Doctor's Lounge</h1>

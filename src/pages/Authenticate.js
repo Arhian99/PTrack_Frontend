@@ -23,6 +23,7 @@ function Authenticate() {
 
     // the purpose of this is to check for any logged in users that come to this page and redirect them to the home page.
     useEffect(() =>{
+        console.log(user)
         if(user!==null){
             navigate("/")
         }
