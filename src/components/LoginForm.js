@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React from 'react'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import * as Yup from 'yup';
@@ -21,7 +21,7 @@ export default function LoginForm({errorMessage, setLoading}) {
     const {setUser} = useAuth(); // imports setUser function from global auth context using custom useAuth() hook
 
     // navigation
-    const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programatically.
+    const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programmatically.
 
     // form controls, frontend form validation, and form styling using Formik and Yup 
     const formik = useFormik({
@@ -61,12 +61,12 @@ export default function LoginForm({errorMessage, setLoading}) {
                         headers: {
                             'Content-Type': 'application/json',
                             withCredentials: true
-                            // TODO: include Authorization header with Bearer token if avaliable
+                            // TODO: include Authorization header with Bearer token if available
                         }
                     }
                 );
 
-                //TODO: Debuging purposes, delete
+                //TODO: Debugging purposes, delete
                 console.log("Login Response: ")
                 console.log(response);
 
@@ -77,7 +77,7 @@ export default function LoginForm({errorMessage, setLoading}) {
                 if(response.status === 200){
                     setUser(response.data)
 
-                    //TODO: Debuging purposes, delete
+                    //TODO: Debugging purposes, delete
                     console.log("Authentication Success!")
 
                     // user has been authenticated, therefore navigate to home
@@ -113,7 +113,7 @@ export default function LoginForm({errorMessage, setLoading}) {
                             break;
                     }
                 }
-                //TODO: Debuging purposes, delete
+                //TODO: Debugging purposes, delete
                 console.log(error.response)
                 console.log(errorMessage)
             }
