@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import * as Yup from 'yup';
@@ -22,6 +22,7 @@ export default function LoginForm({errorMessage, setLoading}) {
 
     // navigation
     const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programmatically.
+
 
     // form controls, frontend form validation, and form styling using Formik and Yup 
     const formik = useFormik({
@@ -77,6 +78,11 @@ export default function LoginForm({errorMessage, setLoading}) {
                 if(response.status === 200){
                     setUser(response.data)
 
+
+
+                    
+                    window.localStorage.setItem('user', response.data); // sets user in localStorage to persist across refresh
+
                     //TODO: Debugging purposes, delete
                     console.log("Authentication Success!")
 
@@ -91,6 +97,7 @@ export default function LoginForm({errorMessage, setLoading}) {
                 //TODO: look into this 
                 // if backend responds with HTTP status 401 user is disabled
                 if(error.response.status === 401){
+                    setLoading(false)
                     navigate("/unconfirmed") // account is not confirmed
                 } else if(error.response.status === 400) {
                     // if backend responds with HTTP status 400 it could either be wrong email, wrong password, or wrong role

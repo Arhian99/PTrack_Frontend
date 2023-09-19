@@ -1,22 +1,30 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
-import { Button, Container } from 'react-bootstrap';
+import {  Container} from 'react-bootstrap';
 import useAuth from '../hooks/useAuth';
+import LogoutButton from '../components/LogoutButton';
+import HomeNav from '../components/HomeNav';
 
 export default function Home() {
-  const {user, setUser } = useAuth();
-  const userRole = user?.user.roles[0].name;
-
+  const {user } = useAuth();
+  
+  console.log(window.localStorage.getItem('user'))
+  
+  
   return (
-    <Container>
-        <h1>Welcome {user?.user.username}</h1>
+    <Container fluid className='p-0'>
+      <HomeNav />
+      <Container>
+        
+      <h1>Welcome {user?.user?.username}</h1>
         <ul>
-          {userRole === "ROLE_DOCTOR" 
-            ? <li><NavLink to="/doctor" key={userRole}>Doctor Lounge</NavLink></li>
-            : <li><NavLink to="/patient" >Patient Lounge</NavLink></li>
-          }
+          <li><NavLink to="/doctor" key="1">Doctor Lounge</NavLink></li>
+          <li><NavLink to="/patient" key="2">Patient Lounge</NavLink></li>
         </ul>
-        <Button onClick={() => setUser(null)}>Logout</Button>
+        
+        <LogoutButton />
+      </Container>
+
     </Container>
   )
 }

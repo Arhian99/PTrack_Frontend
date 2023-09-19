@@ -1,4 +1,4 @@
-import { Container } from "react-bootstrap";
+import { Container, Image } from "react-bootstrap";
 import { useEffect, useState } from "react";
 import { ToggleButtonGroup, ToggleButton } from "react-bootstrap";
 import RegisterForm from '../components/RegisterForm';
@@ -6,7 +6,7 @@ import LoginForm from '../components/LoginForm';
 import Loading from "./Loading";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-
+import logo from "../assets/logo512.png"
 
 /*
 Authenticate Page displays the LoginForm component or the RegisterForm component depending on the activeForm state variable, which
@@ -23,7 +23,9 @@ function Authenticate() {
 
     // the purpose of this is to check for any logged in users that come to this page and redirect them to the home page.
     useEffect(() =>{
+        //TODO: Debugging purposes, delete
         console.log(user)
+
         if(user!==null){
             navigate("/")
         }
@@ -32,6 +34,8 @@ function Authenticate() {
     return (
         // if loading displays the loading component, otherwise it displays the forms
         loading ? <Loading /> :
+        <Container fluid className="d-flex flex-column align-items-center py-5">
+            <Image fluid src={logo} className="rounded-circle p-2 m-3" style={{maxWidth: "200px"}}/>      
             <Container className="d-flex flex-column justify-content-center align-items-center" >
                 <ToggleButtonGroup className="mb-3" style={{width: "350px"}} type="radio" value={activeForm} name="roles">
                     <ToggleButton variant='primary' 
@@ -50,8 +54,9 @@ function Authenticate() {
                     </ToggleButton>
                 </ToggleButtonGroup>
                 {/* renders loginForm or registerForm based on the value of activeForm variable*/}
-                {activeForm === 'login' ? <LoginForm errorMessage={{errorMessage, setErrorMessage}} setLoading={setLoading}/> : <RegisterForm errorMessage={{errorMessage, setErrorMessage}} loading={setLoading}/>}
+                {activeForm === 'login' ? <LoginForm errorMessage={{errorMessage, setErrorMessage}} setLoading={setLoading}/> : <RegisterForm errorMessage={{errorMessage, setErrorMessage}} setLoading={setLoading}/>}
             </Container>
+        </Container>
     );
 
 }

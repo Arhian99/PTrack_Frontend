@@ -11,7 +11,6 @@ import Authenticate from './pages/Authenticate';
 import Unauthorized from './pages/Unauthorized';
 import Unconfirmed from './pages/Unconfirmed';
 import ProtectedRoutes from './components/ProtectedRoutes';
-import Draft from './pages/Draft';
 
 
 function App() {
@@ -25,7 +24,7 @@ function App() {
       {/* protected routes */}
       {/* Check the role of the user at Home.js page and render a Home page according to the role (either a doctor or a patient home page) */}
       <Route element={<ProtectedRoutes />} >
-        <Route path='/' element={<Draft />} />
+        <Route path='/' element={<Home />} />
         <Route path="patient" element={<PatientLounge />} />
         <Route path="doctor" element={<DoctorLounge />} />
       </Route>

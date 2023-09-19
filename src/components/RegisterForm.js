@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Form from 'react-bootstrap/Form';
 import Button from 'react-bootstrap/Button';
 import * as Yup from 'yup';
@@ -24,7 +24,6 @@ export default function RegisterForm({errorMessage, setLoading}) {
     //navigation. Navigate is a navigation object returned by useNavigate() which is a built in react router custom hook
     const navigate = useNavigate();
 
-
     // Formik is used for form styling, frontend input validation and styling
     // Yup is the frontend validation schema
     const formik = useFormik({
@@ -35,7 +34,7 @@ export default function RegisterForm({errorMessage, setLoading}) {
             password2:'',
             roles:''
         },
-        // frontend validation schema
+        // frontend form validation schema
         validationSchema: Yup.object({
             email: Yup.string().email('Please enter a valid email address.').required('Email address is required.'),
             username: Yup.string().min(6, 'Username must be 6 characters or more.').max(15, 'Username must be 15 characters or less.')
