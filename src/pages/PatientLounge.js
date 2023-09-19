@@ -1,33 +1,32 @@
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
-import { Button } from "react-bootstrap";
+import { Button, Container } from "react-bootstrap";
 import { useEffect } from "react";
+import BackButton from "../components/BackButton";
 
-
+/* 
+This component contains all the profile information for Patients
+*/
 export default function PatientLounge() {
   const {user} = useAuth();
   const navigate = useNavigate();
 
-  function goBack(){
-    return navigate(-1);
-  }
-
   useEffect(() => {
-    if(user?.user.roles[0].name !== "ROLE_USER") {
+    if(user?.user?.roles[0].name !== "ROLE_USER") {
       navigate("/unauthorized")
     }
   }, [])
 
   return (
-    <div>
+    <Container>
       <h1>Welcome to the Patient's Lounge</h1>
       <h3>Your Credentials:</h3>
       <ul>
         <li>Username: {user?.user?.username}</li>
         <li>Email: {user?.user?.email}</li>
-        <li>Role: {user?.user.roles[0].name}</li>
+        <li>Role: {user?.user?.roles[0].name}</li>
       </ul>
-      <Button onClick={goBack}>Go Back</Button>
-    </div>
+      <BackButton />
+    </Container>
   )
 }

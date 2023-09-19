@@ -1,15 +1,14 @@
 import React from 'react'
-import { Button } from 'react-bootstrap';
-import { useNavigate } from 'react-router-dom'
+import { Container } from 'react-bootstrap';
+import BackButton from '../components/BackButton';
 
+/* Users get redirected here when they try to access resources/pages to which they don't have permissions for. */
 export default function Unauthorized() {
-  const navigate = useNavigate();
-
   return (
-    <>
+    <Container>
         <h1> Unauthorized :( </h1>
-        <Button onClick={navigate(-1)}>Go Back</Button>
-    </>
+        <BackButton isUnauthorized={true}/>
+    </Container>
 
   )
 }

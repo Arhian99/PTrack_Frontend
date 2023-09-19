@@ -2,29 +2,19 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import {  Container} from 'react-bootstrap';
 import useAuth from '../hooks/useAuth';
-import LogoutButton from '../components/LogoutButton';
-import HomeNav from '../components/HomeNav';
+import PatientHome from '../components/PatientHome';
+import DoctorHome from '../components/DoctorHome';
 
+/*
+This is the Home Page and renders either the PatientHome or DoctorHome 
+component depending on the role of the user.
+*/
 export default function Home() {
-  const {user } = useAuth();
-  
-  //console.log(JSON.parse(window.localStorage.getItem('user')))
-  
+  const {user} = useAuth();
   
   return (
     <Container fluid className='p-0'>
-      <HomeNav />
-      <Container>
-        
-      <h1>Welcome {user?.user?.username}</h1>
-        <ul>
-          <li><NavLink to="/doctor" key="1">Doctor Lounge</NavLink></li>
-          <li><NavLink to="/patient" key="2">Patient Lounge</NavLink></li>
-        </ul>
-        
-        <LogoutButton />
-      </Container>
-
+      {user?.user?.roles[0].name === 'ROLE_USER' ? <PatientHome /> : <DoctorHome />}
     </Container>
   )
 }
