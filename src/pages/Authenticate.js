@@ -25,6 +25,7 @@ function Authenticate() {
     useEffect(() =>{
         //TODO: Debugging purposes, delete
         console.log(user)
+        console.log(window.localStorage)
 
         if(user!==null){
             navigate("/")

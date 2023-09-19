@@ -77,11 +77,7 @@ export default function LoginForm({errorMessage, setLoading}) {
                 // if backend response is HTTP status 200, user successfully authenticated
                 if(response.status === 200){
                     setUser(response.data)
-
-
-
-                    
-                    window.localStorage.setItem('user', response.data); // sets user in localStorage to persist across refresh
+                    window.localStorage.setItem('user', JSON.stringify(response.data)); // sets user in localStorage to persist across refresh
 
                     //TODO: Debugging purposes, delete
                     console.log("Authentication Success!")

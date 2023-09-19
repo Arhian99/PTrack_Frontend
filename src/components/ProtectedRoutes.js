@@ -12,7 +12,7 @@ export default function ProtectedRoutes() {
     useEffect(() => {
       if(user===null){
         navigate("/authenticate")
-      } else if(user.isEnabled !== true){
+      } else if(user.user.isEnabled === false){
         navigate("/unconfirmed")
       } 
     }, [user])

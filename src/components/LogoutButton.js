@@ -4,13 +4,12 @@ import useAuth from '../hooks/useAuth'
 
 function LogoutButton() {
     const {setUser} = useAuth();
-
-  return (
-    <Button onClick={() => {
+    function handleLogout() {
       setUser(null);
       window.localStorage.setItem('user', null)
-      }}
-    >Logout</Button>
+    }
+  return (
+    <Button onClick={handleLogout}>Logout</Button>
   )
 }
 

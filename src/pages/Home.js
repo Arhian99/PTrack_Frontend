@@ -8,7 +8,7 @@ import HomeNav from '../components/HomeNav';
 export default function Home() {
   const {user } = useAuth();
   
-  console.log(window.localStorage.getItem('user'))
+  //console.log(JSON.parse(window.localStorage.getItem('user')))
   
   
   return (
