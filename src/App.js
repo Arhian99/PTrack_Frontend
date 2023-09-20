@@ -12,6 +12,7 @@ import Unauthorized from './pages/Unauthorized';
 import Unconfirmed from './pages/Unconfirmed';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import HomeNav from './components/HomeNav';
+import CheckIn from './pages/CheckIn';
 
 
 function App() {
@@ -23,12 +24,12 @@ function App() {
       <Route path='/unconfirmed'  element={<Unconfirmed />} />
 
       {/* protected routes */}
-      {/* Check the role of the user at Home.js page and render a Home page according to the role (either a doctor or a patient home page) */}
       <Route element={<ProtectedRoutes />} >
         <Route element={<HomeNav />} >
           <Route path='/' element={<Home />} />
           <Route path="patient" element={<PatientLounge />} />
           <Route path="doctor" element={<DoctorLounge />} />
+          <Route path='/checkIn' element={<CheckIn />} />
         </Route>
       </Route>
 
@@ -42,8 +43,6 @@ export default App;
 
 /*
 TODO:
-  - Make Doctor Home and Patient Home components and render on Home page according to signed in user.
   - Build out Patient and Doctor Lounge as "Profile pages"
   - Make/ Configure 404 error page
-
 */

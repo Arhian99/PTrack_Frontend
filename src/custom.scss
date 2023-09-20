@@ -5,6 +5,39 @@
 //
 
 
+$utilities: map-merge(
+    $utilities,
+    (
+        "max-width": (
+            property: max-width,
+            class: mw,
+            values: (
+                25: 25%,
+                50: 50%,
+                75: 75%,
+                100: 100%,
+                auto: auto
+            )
+        )
+    )
+);
+
+$utilities: map-merge(
+    $utilities, 
+    (
+        "viewport-width": (
+            property: width,
+            class: vw,
+            values: (
+                25: 25vw,
+                50: 50vw,
+                75: 75vw,
+                100: 100vw,
+            )
+        )
+    )
+);
+
 
 
 @import "~bootstrap/scss/bootstrap";

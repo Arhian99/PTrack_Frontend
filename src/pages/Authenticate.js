@@ -36,7 +36,7 @@ function Authenticate() {
         // if loading displays the loading component, otherwise it displays the forms
         loading ? <Loading /> :
         <Container fluid className="d-flex flex-column align-items-center py-5">
-            <Image fluid src={logo} className="rounded-circle p-2 m-3" style={{maxWidth: "200px"}}/>      
+            <Image fluid src={logo} className="rounded-circle p-2 m-3" style={{maxWidth: "150px"}}/>      
             <Container className="d-flex flex-column justify-content-center align-items-center" >
                 <ToggleButtonGroup className="mb-3" style={{width: "350px"}} type="radio" value={activeForm} name="roles">
                     <ToggleButton variant='primary' 
@@ -51,7 +51,8 @@ function Authenticate() {
                         value={'signup'} 
                         onClick={() => {
                             setActiveForm('signup');
-                            setErrorMessage(null)}}> Sign Up 
+                            setErrorMessage(null)
+                        }}> Sign Up 
                     </ToggleButton>
                 </ToggleButtonGroup>
                 {/* renders loginForm or registerForm based on the value of activeForm variable*/}
