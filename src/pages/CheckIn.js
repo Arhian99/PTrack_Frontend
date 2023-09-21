@@ -22,15 +22,14 @@ function CheckIn() {
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
     const [locations, setLocations] = useState([]);
+    const userJWT = user?.jwt;
+    const headers ={
+        'Authorization': 'Bearer '.concat(userJWT),
+        'Content-Type': 'application/json',
+        withCredentials: true
+    }
 
     async function getLocations(){
-        const userJWT = user.jwt;
-        const headers ={
-            'Authorization': 'Bearer '.concat(userJWT),
-            'Content-Type': 'application/json',
-            withCredentials: true
-
-        }
         try{
             setLoading(true)
             const response = await axios.get(
@@ -48,7 +47,6 @@ function CheckIn() {
         }
     }
 
-
     useEffect(() => getLocations, [])
     
     const formik = useFormik({
@@ -61,17 +59,29 @@ function CheckIn() {
             doctor: Yup.string().required('Please select a doctor.')
         }),
         onSubmit: async (values) => {
-            setLoading(true)
-            setErrorMessage(null)
-            
             try {
+                setLoading(true)
+                setErrorMessage(null)
+                const response = await axios.post(
+                    "/api/locations/checkIn",
+                    {
+                        "name": values.location,
+                        "email": getRole(user) === "ROLE_USER" ? user?.user.email : user?.doctor.email,
+                        "role": getRole(user)
 
+                    },
+                    { headers }
+                    
+                )
+                setLoading(false)
+                console.log(response);
             } catch(error) {
                 setLoading(false)
                 console.log(error)
             }
         }
     })
+
     return (
         loading ? <Loading /> : 
         <Container className='mt-3'>
