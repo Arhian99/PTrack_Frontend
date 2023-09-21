@@ -13,7 +13,7 @@ export default function DoctorLounge() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(user?.user?.roles[0].name !== "ROLE_DOCTOR") {
+        if(user?.doctor?.roles[0].name !== "ROLE_DOCTOR") {
           navigate("/unauthorized")
         }
     }, [])
@@ -23,9 +23,9 @@ export default function DoctorLounge() {
       <h1>Welcome to the Doctor's Lounge</h1>
       <h3>Your Credentials:</h3>
       <ul>
-        <li>Username: {user?.user?.username}</li>
-        <li>Email: {user?.user?.email}</li>
-        <li>Role: {user?.user?.roles[0].name}</li>
+        <li>Username: {user?.doctor?.username}</li>
+        <li>Email: {user?.doctor?.email}</li>
+        <li>Role: {user?.doctor?.roles[0].name}</li>
       </ul>
       <BackButton />
     </Container>

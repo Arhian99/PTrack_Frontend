@@ -11,7 +11,7 @@ component depending on the role of the user.
 */
 export default function Home() {
   const {user} = useAuth();
-  
+  console.log(user)
   return (
     <Container fluid className='p-0'>
       {user?.user?.roles[0].name === 'ROLE_USER' ? <PatientHome /> : <DoctorHome />}

@@ -1,17 +1,65 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import BackButton from '../components/BackButton'
 import { Button, Container, Form, FormControl } from 'react-bootstrap'
 import { useFormik } from 'formik';
 import * as Yup from 'yup';
 import Loading from '../pages/Loading'
+import useAuth from '../hooks/useAuth';
+import axios from '../api/axios';
 
 //TODO: load location options from backend API /api/locations/all and render them in select dropdown 
 //TODO: load doctor options from the activeDoctors set field of the selected location object and render the options in the select dropdown
-// TODO: handle backend responses upon form submission
-// TODO: Handle backend errors 
+//TODO: handle backend responses upon form submission
+//TODO: Handle backend errors 
 function CheckIn() {
+    const {user} = useAuth();
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
+
+    async function getLocations(){
+        const userJWT = user.jwt;
+        const headers ={
+            'Authorization': 'Bearer '.concat(userJWT),
+            'Content-Type': 'application/json',
+            withCredentials: true
+
+        }
+        try{
+            setLoading(true)
+            const response = await axios.get(
+                "/api/locations/all",
+                { headers }
+            )
+
+            setLoading(false)
+            console.log(response)
+
+        } catch(error) {
+            setLoading(false)
+            console.log(error)
+        }
+    }
+
+    async function getUser(){
+        const userJWT = user.jwt;
+        const headers ={
+            'Authorization': 'Bearer '.concat(userJWT),
+            'Content-Type': 'application/json',
+            withCredentials: true
+        }
+        try{
+            const response = await axios.get(
+                "/api/welcome/user",
+                {"email": "arhianalbis7@gmail.com"},
+                {headers}
+            )
+            console.log(response)
+        } catch(error){
+            console.log(error)
+        }
+    }
+
+    useEffect(() => getUser, [])
 
     const formik = useFormik({
         initialValues: {
