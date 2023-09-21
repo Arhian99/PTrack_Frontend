@@ -6,15 +6,22 @@ import * as Yup from 'yup';
 import Loading from '../pages/Loading'
 import useAuth from '../hooks/useAuth';
 import axios from '../api/axios';
+import { getRole } from '../utils/utilities';
 
-//TODO: load location options from backend API /api/locations/all and render them in select dropdown 
 //TODO: load doctor options from the activeDoctors set field of the selected location object and render the options in the select dropdown
 //TODO: handle backend responses upon form submission
 //TODO: Handle backend errors 
+// when doctor checks in --> add doctor to activeDoctors field 
+// expose API endpoint that takes a location in the request and returns all Doctors in the activeDoctors field for that location
+
+
+
+
 function CheckIn() {
     const {user} = useAuth();
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
+    const [locations, setLocations] = useState([]);
 
     async function getLocations(){
         const userJWT = user.jwt;
@@ -32,7 +39,8 @@ function CheckIn() {
             )
 
             setLoading(false)
-            console.log(response)
+            setLocations(response.data);
+            console.log(response.data);
 
         } catch(error) {
             setLoading(false)
@@ -40,27 +48,9 @@ function CheckIn() {
         }
     }
 
-    async function getUser(){
-        const userJWT = user.jwt;
-        const headers ={
-            'Authorization': 'Bearer '.concat(userJWT),
-            'Content-Type': 'application/json',
-            withCredentials: true
-        }
-        try{
-            const response = await axios.get(
-                "/api/welcome/user",
-                {"email": "arhianalbis7@gmail.com"},
-                {headers}
-            )
-            console.log(response)
-        } catch(error){
-            console.log(error)
-        }
-    }
 
-    useEffect(() => getUser, [])
-
+    useEffect(() => getLocations, [])
+    
     const formik = useFormik({
         initialValues: {
             location:'',
@@ -83,7 +73,7 @@ function CheckIn() {
         }
     })
     return (
-        loading ? <Loading /> :
+        loading ? <Loading /> : 
         <Container className='mt-3'>
             <h1>CheckIn</h1>
             <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
@@ -96,11 +86,7 @@ function CheckIn() {
                         value={formik.values.location}
                         >
                             <option>Select a Location</option>
-                            <option value="0">Zero</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                            <option value="4">Four</option>
+                            {locations.map((location) => <option value={location.name} key={location.name}>{location.name}</option>)}
                     </Form.Select>
                     <Form.Text className='text-danger'>
                         {formik.touched.location && formik.errors.location ? (
@@ -108,7 +94,8 @@ function CheckIn() {
                         ) : null}
                     </Form.Text>
                 </Form.Group>
-
+                
+                {getRole(user) === "ROLE_DOCTOR" ? null :
                 <Form.Group>
                     <Form.Label>Doctor: </Form.Label>
                     <Form.Select
@@ -130,6 +117,7 @@ function CheckIn() {
                         ) : null}
                     </Form.Text>
                 </Form.Group>
+                }
             
                 <Button type='submit' className='d-block my-3'>Submit</Button>
             </Form>

@@ -19,3 +19,13 @@ export function formatBackendLoginURL(activeRole) {
     return url;
 }
 
+export function getRole(user) {
+    if(user?.user !== undefined && user?.user.roles.find(role => role.name === "ROLE_USER") !== undefined){
+        return "ROLE_USER";
+    } else if(user?.doctor !== undefined && user?.doctor.roles.find(role => role.name === "ROLE_DOCTOR") !== undefined){
+        return "ROLE_DOCTOR";
+    } else {
+        return undefined;
+    }
+}
+
