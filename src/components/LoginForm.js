@@ -62,7 +62,6 @@ export default function LoginForm({errorMessage, setLoading}) {
                         headers: {
                             'Content-Type': 'application/json',
                             withCredentials: true
-                            // TODO: include Authorization header with Bearer token if available
                         }
                     }
                 );
