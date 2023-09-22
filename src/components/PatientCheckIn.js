@@ -20,6 +20,7 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
         }),
 
         onSubmit: async (values) => {
+            console.log(values)
             try {
                 setLoading(true)
                 setErrorMessage(null)
@@ -62,8 +63,10 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                 console.log(error)
             }
         }
-
-        getDoctors();
+        if(formik.values.location !== ""){
+            getDoctors();
+        }
+        
     }, [formik.values.location])
 
     return (

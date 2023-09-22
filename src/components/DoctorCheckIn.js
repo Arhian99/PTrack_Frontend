@@ -44,9 +44,6 @@ function DoctorCheckIn({user, setLoading, headers, locations, errorMessage, setE
         }
     })
 
-
-
-
     return (
             <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
                 <Form.Group className="mb-2" controlId='location'>
