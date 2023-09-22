@@ -7,23 +7,6 @@ import { Form, Button } from 'react-bootstrap';
 
 function PatientCheckIn({user, setLoading, headers, locations, errorMessage, setErrorMessage }) {
     const[docsAtLocation, setDocsAtLocation] = useState();
-    async function getDoctors(){
-        try {
-            const response = await axios.get(
-                "/api/locations/activeDoctors",
-                {
-                    "name": formik.values.location
-                },
-                { headers }
-            )
-
-            console.log(response);
-            setDocsAtLocation(response.data);
-
-        } catch(error){
-            console.log(error)
-        }
-    }
 
     const formik = useFormik({
         initialValues: {
@@ -64,7 +47,24 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
         }
     })
 
-    useEffect(() => getDoctors, [formik.values.location])
+    useEffect(() => {
+        async function getDoctors(){
+            try {
+                const response = await axios.get(
+                    "/api/locations/activeDoctors?location_name="+formik.values.location,
+                    { headers }
+                )
+    
+                console.log(response);
+                setDocsAtLocation(response.data);
+    
+            } catch(error){
+                console.log(error)
+            }
+        }
+
+        getDoctors();
+    }, [formik.values.location])
 
     return (
             <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
@@ -95,7 +95,7 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                         value={formik.values.doctor}
                         >
                             <option>Select a Doctor</option>
-                            {docsAtLocation?.map(doc => <option value={doc.username} key={doc.username}>doc.username</option>)}
+                            {docsAtLocation?.map(doc => <option value={doc.username} key={doc.username}>{doc.username}</option>)}
                     </Form.Select>
                     <Form.Text className='text-danger'>
                         {formik.touched.doctor && formik.errors.doctor ? (
