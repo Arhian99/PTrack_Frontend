@@ -22,6 +22,7 @@ function CheckIn() {
     const [loading, setLoading] = useState(false)
     const [errorMessage, setErrorMessage] = useState(null)
     const [locations, setLocations] = useState([]);
+    const [docsAtLocation, setDocsAtLocation] = useState([]);
     const userJWT = user?.jwt;
     const headers ={
         'Authorization': 'Bearer '.concat(userJWT),
@@ -47,17 +48,39 @@ function CheckIn() {
         }
     }
 
+    async function getDoctors(locationName){
+        try {
+            const response = await axios.get(
+                "/api/locations/activeDoctors",
+                { headers },
+                {
+                    "name": locationName
+                }
+                
+            )
+
+            console.log(response);
+            setDocsAtLocation(response.data);
+
+        } catch(error){
+            console.log(error)
+        }
+        
+    }
+
     useEffect(() => getLocations, [])
-    
+
     const formik = useFormik({
         initialValues: {
             location:'',
             doctor:''
         },
+
         validationSchema: Yup.object({
             location: Yup.string().required('Please select a location.'),
             doctor: Yup.string().required('Please select a doctor.')
         }),
+
         onSubmit: async (values) => {
             try {
                 setLoading(true)
@@ -71,16 +94,27 @@ function CheckIn() {
 
                     },
                     { headers }
-                    
                 )
+                
                 setLoading(false)
-                console.log(response);
+
+                if(response.status === 200){
+                    console.log(response)
+                }
+                
             } catch(error) {
                 setLoading(false)
                 console.log(error)
             }
         }
     })
+
+
+    useEffect(() => {
+        getDoctors(formik.values.location);
+        console.log(formik)
+        console.log(formik.values)
+    }, [formik.values.location])
 
     return (
         loading ? <Loading /> : 
@@ -115,11 +149,7 @@ function CheckIn() {
                         value={formik.values.doctor}
                         >
                             <option>Select a Doctor</option>
-                            <option value="0">Zero</option>
-                            <option value="1">One</option>
-                            <option value="2">Two</option>
-                            <option value="3">Three</option>
-                            <option value="4">Four</option>
+                            {docsAtLocation.map(doc => <option value={doc.username} key={doc.username}>doc.username</option>)}
                     </Form.Select>
                     <Form.Text className='text-danger'>
                         {formik.touched.doctor && formik.errors.doctor ? (
