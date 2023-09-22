@@ -3,10 +3,12 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
-import { Form, Button } from 'react-bootstrap';
+import { Form, Button, Spinner, Alert } from 'react-bootstrap';
 
 function PatientCheckIn({user, setLoading, headers, locations, errorMessage, setErrorMessage }) {
     const[docsAtLocation, setDocsAtLocation] = useState();
+    const[loadingDocs, setLoadingDocs] = useState(false);
+    const[warningMessage, setWarningMessage] = useState(null)
 
     const formik = useFormik({
         initialValues: {
@@ -22,8 +24,10 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
         onSubmit: async (values) => {
             console.log(values)
             try {
-                setLoading(true)
-                setErrorMessage(null)
+                setLoading(true);
+                setErrorMessage(null);
+                setWarningMessage(null);
+
                 const response = await axios.post(
                     "/api/locations/checkIn",
                     {
@@ -48,21 +52,32 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
         }
     })
 
-    useEffect(() => {
-        async function getDoctors(){
-            try {
-                const response = await axios.get(
-                    "/api/locations/activeDoctors?location_name="+formik.values.location,
-                    { headers }
-                )
-    
-                console.log(response);
-                setDocsAtLocation(response.data);
-    
-            } catch(error){
-                console.log(error)
+    async function getDoctors(){
+        setLoadingDocs(true);
+        setErrorMessage(null);
+        setWarningMessage(null);
+
+        try {
+            const response = await axios.get(
+                "/api/locations/activeDoctors?location_name="+formik.values.location,
+                { headers }
+            )
+            
+
+            setDocsAtLocation(response.data);
+            setLoadingDocs(false);
+            if(response.data[0] === undefined){
+                setWarningMessage("No doctors currently checked in at the specified location. Choose another location or try again later.")
             }
+
+        } catch(error){
+            setLoadingDocs(false);
+            //TODO HANDLE BACKEND RESPONSES/ERRORS and RENDER THEM ON 'DANGER' text in component below
+            console.log(error)
         }
+    }
+
+    useEffect(() => {
         if(formik.values.location !== ""){
             getDoctors();
         }
@@ -70,6 +85,8 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
     }, [formik.values.location])
 
     return (
+        <>
+            {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
             <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
                 <Form.Group className="mb-2" controlId='location'>
                     <Form.Label>Location:</Form.Label>
@@ -89,26 +106,31 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                     </Form.Text>
                 </Form.Group>
                 
-                <Form.Group>
-                    <Form.Label>Doctor: </Form.Label>
-                    <Form.Select
-                        name='doctor'
-                        onChange={formik.handleChange}
-                        onBlur={formik.handleBlur}
-                        value={formik.values.doctor}
-                        >
+                {
+                    loadingDocs ? <Spinner animation="border" variant="success" />
+                    : 
+                    <Form.Group>
+                        <Form.Label>Doctor: </Form.Label>
+                        <Form.Select
+                            name='doctor'
+                            onChange={formik.handleChange}
+                            onBlur={formik.handleBlur}
+                            value={formik.values.doctor}
+                            >
                             <option>Select a Doctor</option>
-                            {docsAtLocation?.map(doc => <option value={doc.username} key={doc.username}>{doc.username}</option>)}
-                    </Form.Select>
-                    <Form.Text className='text-danger'>
-                        {formik.touched.doctor && formik.errors.doctor ? (
-                            <div className='text-danger'>{formik.errors.doctor}</div>
-                        ) : null}
-                    </Form.Text>
-                </Form.Group>
-            
-                <Button type="submit" className='d-block my-3'>Submit</Button>
+                            { docsAtLocation?.map(doc => <option value={doc.username} key={doc.username}>{doc.username}</option>) }
+                        </Form.Select>
+                        <Form.Text className='text-danger'>
+                            {formik.touched.doctor && formik.errors.doctor ? (
+                                <div className='text-danger'>{formik.errors.doctor}</div>
+                            ) : null}
+                        </Form.Text>
+                    </Form.Group>
+                }
+
+                <Button type="submit" className='d-block my-3' disabled={loadingDocs} >Submit</Button>
             </Form>
+        </>
     )
 }
 

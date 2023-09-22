@@ -1,10 +1,9 @@
 import React from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { Button, Container, Form, FormControl } from 'react-bootstrap'
+import { Button, Form } from 'react-bootstrap'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
-import Loading from '../pages/Loading'
 
 function DoctorCheckIn({user, setLoading, headers, locations, errorMessage, setErrorMessage }) {
     const formik = useFormik({
