@@ -3,12 +3,11 @@ import { useFormik } from 'formik';
 import * as Yup from 'yup'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
-import { Form, Button, Spinner, Alert } from 'react-bootstrap';
+import { Form, Button, Spinner } from 'react-bootstrap';
 
-function PatientCheckIn({user, setLoading, headers, locations, errorMessage, setErrorMessage }) {
+function PatientCheckIn({user, setLoading, headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
     const[docsAtLocation, setDocsAtLocation] = useState();
     const[loadingDocs, setLoadingDocs] = useState(false);
-    const[warningMessage, setWarningMessage] = useState(null)
 
     const formik = useFormik({
         initialValues: {
@@ -27,7 +26,8 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                 setLoading(true);
                 setErrorMessage(null);
                 setWarningMessage(null);
-
+                setSuccessMessage(null);
+                
                 const response = await axios.post(
                     "/api/locations/checkIn",
                     {
@@ -41,13 +41,22 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                 setLoading(false)
 
                 if(response.status === 200){
-                    console.log("Successful Check In!")
-                    console.log(response)
+                    console.log("Successful Check In!");
+                    console.log(response);
+                    user.user.isCheckedIn = true;
+                    setSuccessMessage("Check In Successful!");
                 }
                 
             } catch(error) {
                 setLoading(false)
                 console.log(error)
+
+                if(error.response.status === 401){
+                    setErrorMessage("Something went wrong, re-authenticate and try again.")
+                } else {
+                    setErrorMessage(error.response.data);
+                }
+
             }
         }
     })
@@ -62,18 +71,24 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                 "/api/locations/activeDoctors?location_name="+formik.values.location,
                 { headers }
             )
-            
-
+        
             setDocsAtLocation(response.data);
             setLoadingDocs(false);
+
             if(response.data[0] === undefined){
                 setWarningMessage("No doctors currently checked in at the specified location. Choose another location or try again later.")
             }
 
+
         } catch(error){
             setLoadingDocs(false);
-            //TODO HANDLE BACKEND RESPONSES/ERRORS and RENDER THEM ON 'DANGER' text in component below
-            console.log(error)
+            console.log(error);
+    
+            if(error.response.status === 401){
+                setErrorMessage("Something went wrong, re-authenticate and try again.")
+            } else {
+                setErrorMessage(error.response.data);
+            }
         }
     }
 
@@ -85,10 +100,8 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
     }, [formik.values.location])
 
     return (
-        <>
-            {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
-            <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
-                <Form.Group className="mb-2" controlId='location'>
+        <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
+            <Form.Group className="mb-2" controlId='location'>
                     <Form.Label>Location:</Form.Label>
                     <Form.Select 
                         name="location"
@@ -104,7 +117,7 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                             <div className='text-danger'>{formik.errors.location}</div>
                         ) : null}
                     </Form.Text>
-                </Form.Group>
+            </Form.Group>
                 
                 {
                     loadingDocs ? <Spinner animation="border" variant="success" />
@@ -129,8 +142,7 @@ function PatientCheckIn({user, setLoading, headers, locations, errorMessage, set
                 }
 
                 <Button type="submit" className='d-block my-3' disabled={loadingDocs} >Submit</Button>
-            </Form>
-        </>
+        </Form>
     )
 }
 

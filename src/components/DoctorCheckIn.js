@@ -5,7 +5,7 @@ import { Button, Form } from 'react-bootstrap'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
 
-function DoctorCheckIn({user, setLoading, headers, locations, errorMessage, setErrorMessage }) {
+function DoctorCheckIn({user, setLoading, headers, locations, setErrorMessage, setSuccessMessage }) {
     const formik = useFormik({
         initialValues: {
             location:''
@@ -17,8 +17,9 @@ function DoctorCheckIn({user, setLoading, headers, locations, errorMessage, setE
 
         onSubmit: async (values) => {
             try {
-                setLoading(true)
-                setErrorMessage(null)
+                setLoading(true);
+                setErrorMessage(null);
+                setSuccessMessage(null);
                 const response = await axios.post(
                     "/api/locations/checkIn",
                     {
@@ -33,12 +34,20 @@ function DoctorCheckIn({user, setLoading, headers, locations, errorMessage, setE
 
                 if(response.status === 200){
                     console.log("Successful Check In!")
-                    console.log(response)
+                    console.log(response);
+                    user.doctor.isCheckedIn = true;
+                    setSuccessMessage("Check In Successful!");
                 }
                 
             } catch(error) {
                 setLoading(false)
                 console.log(error)
+
+                if(error.response.status === 401){
+                    setErrorMessage("Something went wrong, re-authenticate and try again.")
+                } else{
+                    setErrorMessage(error.response.data)
+                }
             }
         }
     })

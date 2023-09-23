@@ -52,7 +52,8 @@ TODO:
 
 
 
-
+  - Implement "Thanks for Verifying your Email Page." --> when user clicks Verify Email Button on verification email they get redirected to /verifyEmailPage that says "Thanks for Verifying your Email" and has a "Continue to the App" button.  
   - Build out Patient and Doctor Lounge as "Profile pages"
   - Make/ Configure 404 error page
+  - Log user out on the frontend (delete localStorage user object) after certain time of inactivity.
 */

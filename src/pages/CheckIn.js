@@ -7,14 +7,14 @@ import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
 import DoctorCheckIn from '../components/DoctorCheckIn';
 import PatientCheckIn from '../components/PatientCheckIn';
-
-//TODO: handle backend responses upon form submission
-//TODO: Handle backend errors 
+import CheckedIn from '../components/CheckedIn';
 
 function CheckIn() {
     const {user} = useAuth();
     const [loading, setLoading] = useState(false)
-    const [errorMessage, setErrorMessage] = useState(null)
+    const [errorMessage, setErrorMessage] = useState(null);
+    const[warningMessage, setWarningMessage] = useState(null);
+    const[successMessage, setSuccessMessage] = useState(null);
     const [locations, setLocations] = useState([]);
     const userJWT = user?.jwt;
     const headers ={
@@ -35,14 +35,13 @@ function CheckIn() {
             setLoading(false)
 
         } catch(error) {
-            // 401 --> unauthorized
             setLoading(false)
             console.log(error)
-
+            // 401 --> unauthorized
             if(error.response.status === 401){
                 setErrorMessage("Something went wrong, re-authenticate and try again.")
             } else {
-                setErrorMessage(error.message)
+                setErrorMessage(error.response.data);
             }
         }
     }
@@ -56,23 +55,28 @@ function CheckIn() {
         <Container className='mt-3'>
             <h1>Check In</h1>
             {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
-            {getRole(user) === "ROLE_USER" ? 
-                <PatientCheckIn 
-                    user={user}
-                    setLoading={setLoading}
-                    headers={headers}
-                    locations={locations}
-                    errorMessage={errorMessage}
-                    setErrorMessage={setErrorMessage}
-                /> : 
-                <DoctorCheckIn 
-                    user={user} 
-                    setLoading={setLoading} 
-                    headers={headers}
-                    locations={locations}
-                    errorMessage={errorMessage}
-                    setErrorMessage={setErrorMessage} 
-                />
+            {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
+            {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
+
+            {user?.user?.isCheckedIn || user?.doctor?.isCheckedIn ? <CheckedIn setSuccessMessage={setSuccessMessage} /> :
+                getRole(user) === "ROLE_USER" ?  
+                    <PatientCheckIn 
+                        user={user}
+                        setLoading={setLoading}
+                        headers={headers}
+                        locations={locations}
+                        setErrorMessage={setErrorMessage}
+                        setWarningMessage={setWarningMessage}
+                        setSuccessMessage={setSuccessMessage}
+                    /> : 
+                    <DoctorCheckIn 
+                        user={user} 
+                        setLoading={setLoading} 
+                        headers={headers}
+                        locations={locations}
+                        setErrorMessage={setErrorMessage}
+                        setSuccessMessage={setSuccessMessage}
+                    />
             }
             <BackButton />  
         </Container>
