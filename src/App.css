@@ -19599,8 +19599,36 @@ textarea.form-control-lg {
   width: auto !important;
 }
 
+.mw-25 {
+  max-width: 25% !important;
+}
+
+.mw-50 {
+  max-width: 50% !important;
+}
+
+.mw-75 {
+  max-width: 75% !important;
+}
+
 .mw-100 {
   max-width: 100% !important;
+}
+
+.mw-auto {
+  max-width: auto !important;
+}
+
+.vw-25 {
+  width: 25vw !important;
+}
+
+.vw-50 {
+  width: 50vw !important;
+}
+
+.vw-75 {
+  width: 75vw !important;
 }
 
 .vw-100 {

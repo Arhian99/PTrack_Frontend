@@ -42,18 +42,10 @@ export default App;
 
 /*
 TODO:
-  - On PatientCheckIn component Handle backend error responses and render them in the UI
-      - on /checkIn endpoint on the backend, implement a check to check if the user is already checked in to a certain location and return a 400 response if user is already checked in. 
-  - On PatientCheckIn component, handle success response --> upon check in, show CheckedIn component. 
-  - On CheckIn Page, check if current user or doctor is already checked in, if so, dont allow to check in again , render a CheckedIn Component
-  - On DoctorCheckIn component Handle backend error responses and render them in the UI
-  - On DoctorCheckIn component, handle success response --> upon check in, show CheckedIn component. 
-
-
-
-
   - Implement "Thanks for Verifying your Email Page." --> when user clicks Verify Email Button on verification email they get redirected to /verifyEmailPage that says "Thanks for Verifying your Email" and has a "Continue to the App" button.  
   - Build out Patient and Doctor Lounge as "Profile pages"
-  - Make/ Configure 404 error page
+  - Make/configure 404 error page
   - Log user out on the frontend (delete localStorage user object) after certain time of inactivity.
+  - Add clean up items upon log out
+      -- send request to backend ending Visit, Checking Doctor/Patients Out of Locations, clearing locations activeDoctors and activePatient profiles
 */
