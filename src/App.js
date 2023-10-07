@@ -13,7 +13,8 @@ import Unconfirmed from './pages/Unconfirmed';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import HomeNav from './components/HomeNav';
 import CheckIn from './pages/CheckIn';
-
+import BeginVisit from './components/BeginVisit';
+import NewVisit from './pages/NewVisit';
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
           <Route path="patient" element={<PatientLounge />} />
           <Route path="doctor" element={<DoctorLounge />} />
           <Route path='/checkIn' element={<CheckIn />} />
+          <Route path='/newVisit' element={<NewVisit />} />
         </Route>
       </Route>
 

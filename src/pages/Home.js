@@ -12,9 +12,6 @@ component depending on the role of the user.
 */
 export default function Home() {
   const {user} = useAuth();
-  console.log(user)
-  console.log(user?.user)
-  console.log(user?.doctor)
 
   return (
     <Container fluid className='p-0'>

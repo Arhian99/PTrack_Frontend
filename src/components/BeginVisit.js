@@ -5,7 +5,7 @@ import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
 import { Form, Button, Spinner } from 'react-bootstrap';
 
-function PatientCheckIn({user, setLoading, headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
+function BeginVisit({user, setLoading, headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
     const[docsAtLocation, setDocsAtLocation] = useState();
     const[loadingDocs, setLoadingDocs] = useState(false);
 
@@ -110,7 +110,7 @@ function PatientCheckIn({user, setLoading, headers, locations, setErrorMessage, 
                         value={formik.values.location}
                         >
                             <option>Select a Location</option>
-                            {locations.map((location) => <option value={location.name} key={location.name}>{location.name}</option>)}
+                            {locations?.map((location) => <option value={location.name} key={location.name}>{location.name}</option>)}
                     </Form.Select>
                     <Form.Text className='text-danger'>
                         {formik.touched.location && formik.errors.location ? (
@@ -131,7 +131,7 @@ function PatientCheckIn({user, setLoading, headers, locations, setErrorMessage, 
                             value={formik.values.doctor}
                             >
                             <option>Select a Doctor</option>
-                            { docsAtLocation?.map(doc => <option value={doc.username} key={doc.username}>{doc.username}</option>) }
+                            { docsAtLocation?.map(doc => <option value={doc?.username} key={doc?.username}>{doc?.username}</option>) }
                         </Form.Select>
                         <Form.Text className='text-danger'>
                             {formik.touched.doctor && formik.errors.doctor ? (
@@ -146,4 +146,4 @@ function PatientCheckIn({user, setLoading, headers, locations, setErrorMessage, 
     )
 }
 
-export default PatientCheckIn
+export default BeginVisit;
