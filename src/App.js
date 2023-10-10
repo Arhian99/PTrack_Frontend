@@ -13,8 +13,8 @@ import Unconfirmed from './pages/Unconfirmed';
 import ProtectedRoutes from './components/ProtectedRoutes';
 import HomeNav from './components/HomeNav';
 import CheckIn from './pages/CheckIn';
-import BeginVisit from './components/BeginVisit';
 import NewVisit from './pages/NewVisit';
+
 
 function App() {
   return (
@@ -48,6 +48,16 @@ TODO:
   - Build out Patient and Doctor Lounge as "Profile pages"
   - Make/configure 404 error page
   - Log user out on the frontend (delete localStorage user object) after certain time of inactivity.
+      --Consider moving user object to session storage instead of local storage.
+  - Move JWT token to HTTP only cookies and set TTL (expiry time) --> Handle JWT more securely. 
   - Add clean up items upon log out
-      -- send request to backend ending Visit, Checking Doctor/Patients Out of Locations, clearing locations activeDoctors and activePatient profiles
+      -- Send request to backend ending Visit, 
+      -- Checking Doctor/Patients Out of Locations, 
+      -- Clearing locations activeDoctors and activePatient profiles
+  - Implement Caching Policy
+      -- Locations -> Shared Cache
+      -- Visits -> Private Cache
+      -- JWT Token -> HTTP Cookies (with TTL expiration)
+      -- User Object -> Local Storage or Session Storage
+          ** if in local storage -> set expiry time and delete user object programmatically, prompt frontend re-authentication upon prolonged inactivity.
 */

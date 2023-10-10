@@ -1,72 +1,100 @@
-import React, { useEffect, useState } from 'react'
+import React, {useState, useMemo, useEffect} from 'react'
 import BackButton from '../components/BackButton'
 import { Alert, Container } from 'react-bootstrap'
 import Loading from '../pages/Loading'
 import useAuth from '../hooks/useAuth';
-import axios from '../api/axios';
-import { getRole } from '../utils/utilities';
+
 import DoctorCheckIn from '../components/DoctorCheckIn';
-import PatientCheckIn from '../components/BeginVisit';
 import CheckedIn from '../components/CheckedIn';
+import useLoading from '../hooks/useLoading';
 
 function CheckIn() {
     const {user} = useAuth();
-    const [loading, setLoading] = useState(false)
+    const {loading} = useLoading();
+
     const [errorMessage, setErrorMessage] = useState(null);
+    // eslint-disable-next-line
     const[warningMessage, setWarningMessage] = useState(null);
     const[successMessage, setSuccessMessage] = useState(null);
-    const [locations, setLocations] = useState([]);
-
-    const headers ={
-        'Authorization': 'Bearer '.concat(user?.jwt),
+    const[isCheckedIn, setIsCheckedIn] = useState(user?.doctor.isCheckedIn);
+   
+    const headers = useMemo(() => ({
+        Authorization: 'Bearer '.concat(user?.jwt),
         'Content-Type': 'application/json',
         withCredentials: true
-    }
-
-    async function getLocations(){
-        setErrorMessage(null)
-        try{
-            setLoading(true)
-            const response = await axios.get(
-                "/api/locations/all",
-                { headers },
-            )
-            setLocations(response.data);
-            setLoading(false)
-
-        } catch(error) {
-            setLoading(false)
-
-            // 401 --> unauthorized
-            if(error.response.status === 401){
-                setErrorMessage("Something went wrong, re-authenticate and try again.")
-            } else {
-                setErrorMessage(error.response.data);
-            }
-        }
-    }
-    
-    useEffect(() => getLocations, [])
-
+    }), [user?.jwt])
 
 
     return (
-        loading ? <Loading /> : 
-        <Container className='mt-3'>
-            <h1>Check In</h1>
-            {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
-            {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
-            {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
-            <DoctorCheckIn 
-                setLoading={setLoading} 
-                headers={headers}
-                locations={locations}
-                setErrorMessage={setErrorMessage}
-                setSuccessMessage={setSuccessMessage}
-            />
-            <BackButton />  
+        <>
+        loading && <Loading />
+        <Container className="mt-3">
+            {
+                isCheckedIn===true ?
+                    <>
+                    {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
+                    {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
+                    {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
+
+                    <CheckedIn 
+                        setSuccessMessage={setSuccessMessage}
+                        setErrorMessage={setErrorMessage}
+                        headers={headers}
+                        setIsCheckedIn={setIsCheckedIn}
+                    />
+                    </>
+                : 
+                    <>
+                    <h1>Check In</h1>
+                    {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
+                    {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
+                    {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
+                    <DoctorCheckIn
+                        headers={headers}
+                        setErrorMessage={setErrorMessage}
+                        setSuccessMessage={setSuccessMessage}
+                        setIsCheckedIn={setIsCheckedIn}
+                    />
+                    <BackButton />
+                    </>
+            }
         </Container>
+        </>
     )
 }
 
-export default CheckIn
+export default CheckIn;
+
+// return (
+//         isCheckedIn ?
+//             <Container className='mt-3'>
+//                 {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
+//                 {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
+//                 {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
+
+//                 <CheckedIn 
+//                     setSuccessMessage={setSuccessMessage}
+//                     // loading={loading}
+//                     // setLoading={setLoading}
+//                     setErrorMessage={setErrorMessage}
+//                     headers={headers}
+//                     setIsCheckedIn={setIsCheckedIn}
+//                 />
+//             </Container>
+//             : 
+//             <Container className='mt-3'>
+//                 <h1>Check In</h1>
+//                 {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
+//                 {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
+//                 {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
+//                 <DoctorCheckIn
+//                     headers={headers}
+//                     // loading={loading}
+//                     // setLoading={setLoading}
+//                     setErrorMessage={setErrorMessage}
+//                     setSuccessMessage={setSuccessMessage}
+//                     setIsCheckedIn={setIsCheckedIn}
+//                 />
+//                 <BackButton />  
+//             </Container>
+//     )

@@ -1,33 +1,55 @@
-import React, { useEffect } from 'react'
-import { Container } from 'react-bootstrap'
+import React, { useCallback, useEffect } from 'react'
+import { Button, Container } from 'react-bootstrap'
 import useAuth from '../hooks/useAuth'
 import { getRole } from '../utils/utilities';
+import axios from '../api/axios';
+import Loading from '../pages/Loading';
+import useLoading from '../hooks/useLoading';
 
-function CheckedIn({setSuccessMessage}) {
-    const{user} = useAuth();
-    function getUserMessage(user) {
-        if(getRole(user) === 'ROLE_USER') {
-            return (
-                `${user?.user.username} is checked in!`
-            )
-        } else if(getRole(user) === 'ROLE_DOCTOR') {
-            return (
-                `Dr. ${user?.doctor.username} is checked in!`
-            )
-        }
-    }
-
-
+function CheckedIn({setSuccessMessage, setErrorMessage, headers, setIsCheckedIn}) {
+    const{user, setUser} = useAuth();
+    const {setLoading} = useLoading();
 
     useEffect(() => {
-        setTimeout(() => setSuccessMessage(null), 5000)
+        setTimeout(() => {
+            setSuccessMessage(null);
+            // setWarningMessage(null);
+            setErrorMessage(null);
+        }, 8500)
     }, [])
 
+    const handleCheckOut = useCallback(async () => {
+        setLoading(true);
+        setErrorMessage(null);
+        setSuccessMessage(null);
+        try {
+            const response = await axios.post(
+                "/api/locations/checkOut",
+                {
+                    "email": user?.doctor.email,
+                    "jwt": user?.jwt,
+                    "role": getRole(user)
+                },
+                { headers }
+            )
+            setLoading(false);
+            if(response.status === 200){
+                console.log("Successful Check Out!")
+                setUser(response.data);
+                setIsCheckedIn(false);
+                setSuccessMessage("Check Out Successful!");
+            }
 
+        } catch(error){
+            setLoading(false);
+            setErrorMessage(error.response.data);
+        }
+    }, [user, headers])
 
   return (
     <Container fluid className='m-0 p-0'>
-        <h1>{getUserMessage(user)}</h1>
+        <h1>You are Checked in @ {user?.doctor?.currentLocation?.name}</h1>
+        <Button onClick={handleCheckOut}>Check Out</Button>
     </Container>
   )
 }

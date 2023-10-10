@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useRef, useState, ref } from 'react'
 import Spinner from 'react-bootstrap/Spinner';
 import { Container } from 'react-bootstrap';
 
@@ -39,8 +39,21 @@ function Loading() {
         }
     }, [])
 
+    const[height, setHeight] = useState(window.document.body.offsetHeight)
+    const [width, setWidth] = useState(window.document.body.offsetWidth)
+    useEffect(() => {
+        console.log('window.innerHeight: '+ `${window.innerHeight}`);
+        console.log('window.innerWidth '+ `${window.innerWidth}`)
+
+        console.log("clientHeight: "+`${document.documentElement.clientHeight}`)
+        console.log("clientWidth: "+`${document.documentElement.clientWidth}`)
+        
+        console.log("offsetHeight: "+`${window.document.body.offsetHeight}`)
+        console.log("offsetWidth: "+`${window.document.body.offsetWidth}`)
+    }, [])
+
     return(
-        <Container fluid className='bg-black p-0 vh-100 d-flex align-items-center justify-content-center'>
+        <Container fluid className='vw-100 vh-100 bg-black p-0 d-flex align-items-center justify-content-center'>
             <div className="d-flex flex-column">
                 <h1 className='flex-center'>Loading...</h1>
                 <div>

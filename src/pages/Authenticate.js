@@ -7,6 +7,7 @@ import Loading from "./Loading";
 import { useNavigate } from "react-router-dom";
 import useAuth from "../hooks/useAuth";
 import logo from "../assets/logo512.png"
+import useLoading from "../hooks/useLoading";
 
 /*
 Authenticate Page displays the LoginForm component or the RegisterForm component depending on the activeForm state variable, which
@@ -16,7 +17,7 @@ Passes loading and errorMessage state variables and functions down to the LoginF
 */
 function Authenticate() {
     const {user} = useAuth(); // // imports user state variable from global auth context using custom useAuth() hook
-    const [loading, setLoading] = useState(false); // set true when page is waiting for backend response
+    const {loading, setLoading} = useLoading(); // set true when page is waiting for backend response
     const [activeForm, setActiveForm] = useState('login'); // decides which component (LoginForm or RegisterForm) will be rendered based on the value of this state variable
     const [errorMessage, setErrorMessage] = useState(null); // errorMessages returned from the backend are stored in this state variable and rendered in the LoginForm and RegisterForm components
     const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programatically.

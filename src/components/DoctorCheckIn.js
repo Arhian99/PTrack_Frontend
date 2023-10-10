@@ -1,14 +1,51 @@
-import React, {useState} from 'react'
+import React, {useState, useCallback, useEffect} from 'react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
-import { Button, Container, Form } from 'react-bootstrap'
+import { Button, Form } from 'react-bootstrap'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
 import useAuth from '../hooks/useAuth';
+import Loading from '../pages/Loading';
+import useLoading from '../hooks/useLoading';
 
-function DoctorCheckIn({setLoading, headers, locations, setErrorMessage, setSuccessMessage }) {
+function DoctorCheckIn({headers, setErrorMessage, setSuccessMessage, setIsCheckedIn }) {
     const{user, setUser} = useAuth();
-    const[isCheckedIn, setIsCheckedIn] = useState(user?.doctor.isCheckedIn);
+    const [locations, setLocations] = useState([]);
+    const {setLoading} = useLoading();
+
+    useEffect(() => {
+        setTimeout(() => {
+            setSuccessMessage(null);
+            // setWarningMessage(null);
+            setErrorMessage(null);
+        }, 8500)
+    }, [])
+
+    const fetchLocations = useCallback(async () => {
+        setErrorMessage(null)
+        try{
+            setLoading(true)
+            const response = await axios.get(
+                "/api/locations/all",
+                { headers },
+            )
+            console.log(response)
+            setLocations(response.data);
+            setLoading(false)
+
+        } catch(error) {
+            setLoading(false)
+
+            // 401 --> unauthorized
+            if(error.response.status === 401){
+                setErrorMessage("Something went wrong, re-authenticate and try again.")
+            } else {
+                setErrorMessage(error.response.data);
+            }
+        }
+    }, [user, headers])
+
+    useEffect(() => fetchLocations, [])
     
     const formik = useFormik({
         initialValues: {
@@ -56,39 +93,7 @@ function DoctorCheckIn({setLoading, headers, locations, setErrorMessage, setSucc
         }
     })
 
-    const handleCheckOut = async () => {
-        setLoading(true);
-        setErrorMessage(null);
-        setSuccessMessage(null);
-
-        const response = await axios.post(
-            "/api/locations/checkOut",
-            {
-                "email": user?.doctor.email,
-                "jwt": user?.jwt,
-                "role": getRole(user)
-            },
-            { headers }
-        )
-
-        setLoading(false);
-        
-        if(response.status === 200){
-            console.log("Successful Check Out!")
-            setUser(response.data);
-            setIsCheckedIn(false);
-            setSuccessMessage("Check Out Successful!");
-        }
-    }
-
-    return (
-        isCheckedIn ?
-        <Container fluid className='m-0 p-0 mb-1'>
-            <h1>You are Checked In @ {user?.doctor.currentLocation?.name}</h1>
-
-            <Button onClick={handleCheckOut}>Check Out</Button>
-        </Container>
-        : 
+    return ( 
         <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
             <Form.Group className="mb-2" controlId='location'>
                 <Form.Label>Location:</Form.Label>
@@ -110,7 +115,6 @@ function DoctorCheckIn({setLoading, headers, locations, setErrorMessage, setSucc
             
             <Button type="submit" className='d-block my-3'>Submit</Button>
         </Form>
-    
     )
 }
 
