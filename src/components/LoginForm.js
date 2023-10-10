@@ -92,7 +92,6 @@ export default function LoginForm({errorMessage, setLoading}) {
                 //TODO: look into this 
                 // if backend responds with HTTP status 401 user is disabled
                 if(error.response.status === 401){
-                    setLoading(false)
                     navigate("/unconfirmed") // account is not confirmed
                 } else if(error.response.status === 400) {
                     // if backend responds with HTTP status 400 it could either be wrong email, wrong password, or wrong role

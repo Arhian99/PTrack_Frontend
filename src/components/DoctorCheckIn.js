@@ -5,13 +5,10 @@ import { Button, Form } from 'react-bootstrap'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
 import useAuth from '../hooks/useAuth';
-import Loading from '../pages/Loading';
-import useLoading from '../hooks/useLoading';
 
-function DoctorCheckIn({headers, setErrorMessage, setSuccessMessage, setIsCheckedIn }) {
+function DoctorCheckIn({setLoading, headers, setErrorMessage, setSuccessMessage, setIsCheckedIn }) {
     const{user, setUser} = useAuth();
     const [locations, setLocations] = useState([]);
-    const {setLoading} = useLoading();
 
     useEffect(() => {
         setTimeout(() => {
@@ -21,31 +18,35 @@ function DoctorCheckIn({headers, setErrorMessage, setSuccessMessage, setIsChecke
         }, 8500)
     }, [])
 
-    const fetchLocations = useCallback(async () => {
-        setErrorMessage(null)
-        try{
-            setLoading(true)
-            const response = await axios.get(
-                "/api/locations/all",
-                { headers },
-            )
-            console.log(response)
-            setLocations(response.data);
-            setLoading(false)
 
-        } catch(error) {
-            setLoading(false)
-
-            // 401 --> unauthorized
-            if(error.response.status === 401){
-                setErrorMessage("Something went wrong, re-authenticate and try again.")
-            } else {
-                setErrorMessage(error.response.data);
+    useEffect( () => {
+        async function fetchLocations(){
+            setErrorMessage(null)
+            try{
+                // setLoading(true)
+                const response = await axios.get(
+                    "/api/locations/all",
+                    { headers },
+                )
+                console.log(response)
+                setLocations(response.data);
+                // setLoading(false)
+    
+            } catch(error) {
+                // setLoading(false)
+                // 401 --> unauthorized
+                if(error.response.status === 401){
+                    setErrorMessage("Something went wrong, re-authenticate and try again.")
+                } else {
+                    setErrorMessage(error.response.data);
+                }
             }
         }
-    }, [user, headers])
+        setLoading(true);
+        fetchLocations();
+        setLoading(false);
 
-    useEffect(() => fetchLocations, [])
+    }, [])
     
     const formik = useFormik({
         initialValues: {

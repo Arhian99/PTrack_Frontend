@@ -7,8 +7,7 @@ import useAuth from '../hooks/useAuth';
 import { useFormik } from 'formik';
 import { useNavigate } from 'react-router-dom';
 import { Alert, FormControl } from 'react-bootstrap';
-import {formatBackendRegistrationURL} from '../utils/utilities'
-
+import { formatBackendRegistrationURL } from '../utils/utilities';
 /*
 Register Form Component
 Handles frontend form validation using Yup validation Schema and Formik for styling and validation styling logic.

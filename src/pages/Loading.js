@@ -53,7 +53,7 @@ function Loading() {
     }, [])
 
     return(
-        <Container fluid className='vw-100 vh-100 bg-black p-0 d-flex align-items-center justify-content-center'>
+        <Container fluid className='w-100 vh-100 bg-black p-0 d-flex align-items-center justify-content-center'>
             <div className="d-flex flex-column">
                 <h1 className='flex-center'>Loading...</h1>
                 <div>

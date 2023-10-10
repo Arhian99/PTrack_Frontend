@@ -3,13 +3,10 @@ import { Button, Container } from 'react-bootstrap'
 import useAuth from '../hooks/useAuth'
 import { getRole } from '../utils/utilities';
 import axios from '../api/axios';
-import Loading from '../pages/Loading';
-import useLoading from '../hooks/useLoading';
 
-function CheckedIn({setSuccessMessage, setErrorMessage, headers, setIsCheckedIn}) {
+function CheckedIn({setLoading, setSuccessMessage, setErrorMessage, headers, setIsCheckedIn}) {
     const{user, setUser} = useAuth();
-    const {setLoading} = useLoading();
-
+    
     useEffect(() => {
         setTimeout(() => {
             setSuccessMessage(null);
@@ -18,7 +15,7 @@ function CheckedIn({setSuccessMessage, setErrorMessage, headers, setIsCheckedIn}
         }, 8500)
     }, [])
 
-    const handleCheckOut = useCallback(async () => {
+    async function handleCheckOut(){
         setLoading(true);
         setErrorMessage(null);
         setSuccessMessage(null);
@@ -44,7 +41,7 @@ function CheckedIn({setSuccessMessage, setErrorMessage, headers, setIsCheckedIn}
             setLoading(false);
             setErrorMessage(error.response.data);
         }
-    }, [user, headers])
+    }
 
   return (
     <Container fluid className='m-0 p-0'>
