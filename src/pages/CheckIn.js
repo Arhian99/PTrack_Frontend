@@ -30,7 +30,7 @@ function CheckIn() {
             <>
             { isCheckedIn ?
                     <Container>
-                        {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
+                        {errorMessage!== null ? <Alert variant='danger'>{errorMessage}</Alert> : null}
                         {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
                         {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
 
@@ -45,7 +45,7 @@ function CheckIn() {
                 : 
                     <Container>
                         <h1>Check In</h1>
-                        {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
+                        {errorMessage!== null ? <Alert variant='danger'>{errorMessage}</Alert> : null}
                         {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
                         {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
                         <DoctorCheckIn

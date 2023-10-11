@@ -11,42 +11,71 @@ function DoctorCheckIn({setLoading, headers, setErrorMessage, setSuccessMessage,
     const [locations, setLocations] = useState([]);
 
     useEffect(() => {
-        setTimeout(() => {
-            setSuccessMessage(null);
-            // setWarningMessage(null);
-            setErrorMessage(null);
-        }, 8500)
-    }, [])
-
-
-    useEffect( () => {
-        async function fetchLocations(){
-            setErrorMessage(null)
-            try{
-                // setLoading(true)
-                const response = await axios.get(
-                    "/api/locations/all",
-                    { headers },
-                )
-                console.log(response)
-                setLocations(response.data);
-                // setLoading(false)
-    
-            } catch(error) {
-                // setLoading(false)
-                // 401 --> unauthorized
-                if(error.response.status === 401){
-                    setErrorMessage("Something went wrong, re-authenticate and try again.")
-                } else {
-                    setErrorMessage(error.response.data);
-                }
-            }
-        }
         setLoading(true);
         fetchLocations();
         setLoading(false);
 
+        setTimeout(() => {
+            setSuccessMessage(null);
+            // setWarningMessage(null);
+            setErrorMessage(null);
+            console.log(user)
+        }, 8500)
     }, [])
+
+    const fetchLocations = useCallback(async () => {
+        try{
+            // setLoading(true)
+            const response = await axios.get(
+                "/api/locations/all",
+                { headers },
+            )
+            console.log(response)
+            setLocations(response.data);
+            // setLoading(false)
+
+        } catch(error) {
+            // setLoading(false)
+            // 401 --> unauthorized
+            if(error.response.status === 401){
+                setErrorMessage("Something went wrong, re-authenticate and try again.")
+            } else {
+                setErrorMessage(error.response.data);
+            }
+        }
+    }, [headers, user])
+    
+    // async function fetchLocations(){
+    //     try{
+    //         // setLoading(true)
+    //         const response = await axios.get(
+    //             "/api/locations/all",
+    //             { headers },
+    //         )
+    //         console.log(response)
+    //         setLocations(response.data);
+    //         // setLoading(false)
+
+    //     } catch(error) {
+    //         // setLoading(false)
+    //         // 401 --> unauthorized
+    //         if(error.response.status === 401){
+    //             setErrorMessage("Something went wrong, re-authenticate and try again.")
+    //         } else {
+    //             setErrorMessage(error.response.data);
+    //             if(error.response.data === 'Error: Doctor is already checked in at a location.'){
+    //                 setIsCheckedIn(true);
+    //                 setUser({
+    //                     ...user,
+    //                     doctor: {
+    //                         ...user.doctor, 
+    //                         isCheckedIn: true
+    //                     }
+    //                 })
+    //             }
+    //         }
+    //     }
+    // }
     
     const formik = useFormik({
         initialValues: {
@@ -83,12 +112,24 @@ function DoctorCheckIn({setLoading, headers, setErrorMessage, setSuccessMessage,
                 }
                 
             } catch(error) {
+                console.log(error);
                 setLoading(false)
 
                 if(error.response.status === 401){
                     setErrorMessage("Something went wrong, re-authenticate and try again.")
                 } else{
-                    setErrorMessage(error.response.data)
+                    setErrorMessage(error.response.data);
+                    if(error.response.data === 'Error: Doctor is already checked in at a location.'){
+                        setErrorMessage("Error: Doctor is already checked in at a location, logout and try again.");
+                        // setIsCheckedIn(true);
+                        setUser({
+                            ...user,
+                            doctor: {
+                                ...user.doctor, 
+                                isCheckedIn: true
+                            }
+                        })
+                    }
                 }
             }
         }
