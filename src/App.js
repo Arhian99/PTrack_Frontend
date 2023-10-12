@@ -14,6 +14,7 @@ import ProtectedRoutes from './components/ProtectedRoutes';
 import HomeNav from './components/HomeNav';
 import CheckIn from './pages/CheckIn';
 import NewVisit from './pages/NewVisit';
+import CurrentVisit from './pages/CurrentVisit';
 
 
 function App() {
@@ -32,6 +33,7 @@ function App() {
           <Route path="doctor" element={<DoctorLounge />} />
           <Route path='/checkIn' element={<CheckIn />} />
           <Route path='/newVisit' element={<NewVisit />} />
+          <Route path='/currentVisit' element={<CurrentVisit />} />
         </Route>
       </Route>
 
@@ -54,7 +56,16 @@ TODO:
       -- Send request to backend ending Visit, 
       -- Checking Doctor/Patients Out of Locations, 
       -- Clearing locations activeDoctors and activePatient profiles
-  - Implement Caching Policy
+  - Implement Frontend Caching Policy thorugh Service Workers and CacheStorage APIs
+      -- Stale-while-refresh policy --> serve stale data while a request is sent to the backend to retrieve safe data, when the fresh data is recieved, update the UI with the fresh data
+      -- 1) Check CacheStorage for data
+        2) If CacheStorage has data serve the data check if the data is valid/fresh
+        3) If the data is valid, you are done.
+        4) if the data is not valid, still serve it but check the HTTP cache for fresh data
+        5) if HTTP cache has fresh data, update the UI with the fresh data and update the caccheStorage with the fresh data
+        6) otherwise request the data from the server and update the caccheStorage (and the UI) with the fresh data
+          ** data requests either to the HTTP cache or to the server happens in the background while the UI already has data (whether fresh or stale)
+  - Backend Caching Policy (thorugh CacheControl headers)
       -- Locations -> Shared Cache
       -- Visits -> Private Cache
       -- JWT Token -> HTTP Cookies (with TTL expiration)

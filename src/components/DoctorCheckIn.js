@@ -18,22 +18,18 @@ function DoctorCheckIn({setLoading, headers, setErrorMessage, setSuccessMessage,
         }, 8500)
     }, [])
 
-
-    useEffect( () => {
+    useEffect(() => {
         async function fetchLocations(){
             setErrorMessage(null)
             try{
-                // setLoading(true)
                 const response = await axios.get(
                     "/api/locations/all",
                     { headers },
                 )
                 console.log(response)
                 setLocations(response.data);
-                // setLoading(false)
     
             } catch(error) {
-                // setLoading(false)
                 // 401 --> unauthorized
                 if(error.response.status === 401){
                     setErrorMessage("Something went wrong, re-authenticate and try again.")
@@ -81,7 +77,7 @@ function DoctorCheckIn({setLoading, headers, setErrorMessage, setSuccessMessage,
                     setIsCheckedIn(true);
                     setSuccessMessage("Check In Successful!");
                 }
-                
+             
             } catch(error) {
                 setLoading(false)
 
