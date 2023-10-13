@@ -15,7 +15,7 @@ import HomeNav from './components/HomeNav';
 import CheckIn from './pages/CheckIn';
 import NewVisit from './pages/NewVisit';
 import CurrentVisit from './pages/CurrentVisit';
-
+import Visits from './pages/Visits';
 
 function App() {
   return (
@@ -34,6 +34,7 @@ function App() {
           <Route path='/checkIn' element={<CheckIn />} />
           <Route path='/newVisit' element={<NewVisit />} />
           <Route path='/currentVisit' element={<CurrentVisit />} />
+          <Route path='/visits' element={<Visits />} />
         </Route>
       </Route>
 

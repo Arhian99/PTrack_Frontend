@@ -25,22 +25,56 @@ function DoctorCheckIn({setLoading, headers, setErrorMessage, setSuccessMessage,
 
     const fetchLocations = useCallback(async () => {
         try{
-            // setLoading(true)
             const response = await axios.get(
                 "/api/locations/all",
-                { headers },
+                { headers }
             )
             console.log(response)
             setLocations(response.data);
-            // setLoading(false)
 
         } catch(error) {
-            // setLoading(false)
             // 401 --> unauthorized
             if(error.response.status === 401){
                 setErrorMessage("Something went wrong, re-authenticate and try again.")
             } else {
                 setErrorMessage(error.response.data);
+
+
+                if(error.response.data === 'Error: Doctor is already checked in at a location.'){
+
+                    // make request to backend, getting UTD user object with isCheckedIn=true and currentLocation!==
+                    setLoading(true);
+                    setErrorMessage(null);
+                    setSuccessMessage(null);
+
+                    try{
+                        const response = await axios.get(
+                            "/api/welcome/doctor?username=".concat(user?.doctor?.username),
+                            {headers}
+                        )
+                        setLoading(false);
+                        console.log(response);
+                        if(response.status === 200) {
+                            setUser(response.data);
+                        }
+
+                    } catch(exception) {
+                        setLoading(false);
+                        setErrorMessage(exception.response.data)
+                        console.log(exception)
+                    }
+
+
+
+                    // setIsCheckedIn(true);
+                    // setUser({
+                    //     ...user,
+                    //     doctor: {
+                    //         ...user.doctor, 
+                    //         isCheckedIn: true
+                    //     }
+                    // })
+                }
             }
         }
     }, [headers, user])

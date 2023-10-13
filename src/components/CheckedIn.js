@@ -40,7 +40,7 @@ function CheckedIn({setLoading, setSuccessMessage, setErrorMessage, headers, set
 
         } catch(error){
             setLoading(false);
-            setErrorMessage(error.response.data);
+            setErrorMessage(error?.response?.data);
         }
     }, [headers, user])
     
