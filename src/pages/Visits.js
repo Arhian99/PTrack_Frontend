@@ -1,6 +1,6 @@
 import React from 'react'
 import { useEffect, useState, useMemo} from 'react'
-import { Container } from 'react-bootstrap'
+import { Container, Button } from 'react-bootstrap'
 import useLoading from '../hooks/useLoading';
 import axios from '../api/axios';
 import useAuth from '../hooks/useAuth';
@@ -17,7 +17,7 @@ function Visits() {
     const {user}= useAuth();
     const {loading, setLoading} = useLoading();
     const [visits, setVisits] = useState();
-    const [message, setMessage] = useState();
+    const [message, setMessage] = useState("no messages");
 
     const headers = useMemo(() => ({
         Authorization: 'Bearer '.concat(user?.jwt),
@@ -30,7 +30,6 @@ function Visits() {
         setLoading(true);
         getVisits();
         setLoading(false);
-        handshake();
     }, [])
     
     async function getVisits(){
@@ -52,62 +51,46 @@ function Visits() {
         stompClient = new Client({
             webSocketFactory: () => new SockJS(SOCKET_URL),
             connectHeaders: {"Authorization": "Bearer ".concat(user?.jwt)},
-            debug: (msg) => console.log(msg)
+            debug: (msg) => console.log(msg), // comment out in production,
+            reconnectDelay: 300000,
+            onConnect: () => {
+                console.log("Connected");
+                topicCurrentVisitSubscription = stompClient.subscribe(
+                    "/user/queue/currentVisit",
+                    (message) => {
+                        console.log(`Recieved: ${message}`);
+                        setMessage(message.body);
+                    }, 
+                    {"Authorization": "Bearer ".concat(user?.jwt)} // check if possible to remove this header after initial handshake (configure backend) --> 
+                )
+            },
+            onDisconnect: () => console.log("Disconnected!"),
+            onStompError: (msg) => {
+                console.log('Broker reported error: ' + msg.headers['message'])
+                console.log('Additional details: ' + msg.body);
+            }
         });
-        // stompClient.webSocketFactory = () => new SockJS(SOCKET_URL);
-        // stompClient.connectHeaders = {
-        //     "Authorization": "Bearer ".concat(user?.jwt)
-        // }
 
-        stompClient.onConnect(() => {
-            console.log("Connected!");
-            topicCurrentVisitSubscription = stompClient.subscribe(
-                "/topic/currentVisit",
-                (message) => {
-                    console.log(message);
-                    setMessage(message.body);
-                }, 
-                {"Authorization": "Bearer ".concat(user?.jwt)} // check if possible to remove this header after initial handshake (configure backend) --> 
-            )
-        })
-
-        stompClient.onDisconnect(() => {
-            console.log("Disconnected!");
-        })
-
-        stompClient.onStompError((msg) => {
-            console.log('Broker reported error: ' + msg.headers['message'])
-            console.log('Additional details: ' + msg.body);
-        })
-
-        console.log(stompClient);
+        // for debugging, delete in production
+        console.log(stompClient)
         stompClient.activate();
-        // stompClient.connect(
-        //     {"Authorization": "Bearer ".concat(user?.jwt)},
-        //     function(frame){
-        //         console.log('Connected '+frame)
-        //         stompClient.subscribe(
-        //             'topic/currentVisit', 
-        //             function (message){
-        //                 console.log(message)
-        //                 console.log(message.body)
-        //                 setMessage(message.body)
-        //             }
-        //         )
-        //     }
-        // )
-
-        // stompClient.onMessage(function (message){
-        //     console.log(message)
-        //     console.log(message.body)
-        //     setMessage(message.body)
-        // });
     }
   return (
     loading ? <Loading/> :
     <Container>
         <h1>Visits</h1>
-        <h3>{message}</h3>
+        <Button onClick={handshake}>Connect</Button>
+        <Button onClick={() => {
+            stompClient?.publish({
+                destination: "/app/currentVisit",
+                // headers: {"Authorization": "Bearer ".concat(user?.jwt)},
+                body: JSON.stringify({
+                    "from": `${user?.user?.username}`
+                })
+            })
+        }}>Send Message</Button>
+        <h3>Messages:</h3>
+        <h5>{message}</h5>
     </Container>
 
   )
