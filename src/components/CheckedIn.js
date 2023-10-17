@@ -4,15 +4,14 @@ import useAuth from '../hooks/useAuth'
 import { getRole } from '../utils/utilities';
 import axios from '../api/axios';
 
-function CheckedIn({setLoading, setSuccessMessage, setErrorMessage, headers, setIsCheckedIn}) {
+function CheckedIn({setLoading, headers, setErrorMessage, setWarningMessage, setSuccessMessage}) {
     const{user, setUser} = useAuth();
     
     useEffect(() => {
         setTimeout(() => {
             setSuccessMessage(null);
-            // setWarningMessage(null);
+            setWarningMessage(null);
             setErrorMessage(null);
-            console.log(user)
         }, 8500)
     }, [])
 
@@ -24,7 +23,7 @@ function CheckedIn({setLoading, setSuccessMessage, setErrorMessage, headers, set
             const response = await axios.post(
                 "/api/locations/checkOut",
                 {
-                    "email": user?.doctor.email,
+                    "email": user?.doctor?.email,
                     "jwt": user?.jwt,
                     "role": getRole(user)
                 },
@@ -34,7 +33,6 @@ function CheckedIn({setLoading, setSuccessMessage, setErrorMessage, headers, set
             if(response.status === 200){
                 console.log("Successful Check Out!")
                 setUser(response.data);
-                setIsCheckedIn(false);
                 setSuccessMessage("Check Out Successful!");
             }
 
@@ -43,34 +41,6 @@ function CheckedIn({setLoading, setSuccessMessage, setErrorMessage, headers, set
             setErrorMessage(error?.response?.data);
         }
     }, [headers, user])
-    
-    // async function handleCheckOut(){
-    //     setLoading(true);
-    //     setErrorMessage(null);
-    //     setSuccessMessage(null);
-    //     try {
-    //         const response = await axios.post(
-    //             "/api/locations/checkOut",
-    //             {
-    //                 "email": user?.doctor.email,
-    //                 "jwt": user?.jwt,
-    //                 "role": getRole(user)
-    //             },
-    //             { headers }
-    //         )
-    //         setLoading(false);
-    //         if(response.status === 200){
-    //             console.log("Successful Check Out!")
-    //             setUser(response.data);
-    //             setIsCheckedIn(false);
-    //             setSuccessMessage("Check Out Successful!");
-    //         }
-
-    //     } catch(error){
-    //         setLoading(false);
-    //         setErrorMessage(error.response.data);
-    //     }
-    // }
 
   return (
     <Container fluid className='m-0 p-0'>

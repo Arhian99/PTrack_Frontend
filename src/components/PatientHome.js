@@ -12,10 +12,10 @@ export default function PatientHome() {
     return (
         <Container className="d-flex flex-column mx-auto vw-75 align-items-center">
             <Container className="p-0 m-0 d-flex flex-column">
-                <h1 className='my-2'>Welcome {user?.user.username}</h1>
-                <NavLink to="/patient" className='btn btn-dark text-white font-weight-bold py-2 my-2'>Patient Lounge</NavLink>
-                <NavLink to={user?.user?.isInVisit===true ? "/currentVisit" : "/newVisit"} className='btn btn-dark text-white font-weight-bold py-2 my-2'>{user?.user?.isInVisit===true ? "Current Visit" : "Begin Visit"}</NavLink>
-                <NavLink to="/visits" className='btn btn-dark text-white font-weight-bold py-2 my-2'>My Visits</NavLink>
+                <h1 className='my-2'>Welcome {user?.user?.username}</h1>
+                <NavLink to="/patient/lounge" className='btn btn-dark text-white font-weight-bold py-2 my-2'>Patient Lounge</NavLink>
+                {/* <NavLink to={user?.user?.isInVisit===true ? "/currentVisit" : "/newVisit"} className='btn btn-dark text-white font-weight-bold py-2 my-2'>{user?.user?.isInVisit===true ? "Current Visit" : "Begin Visit"}</NavLink> */}
+                <NavLink to="/patient/visits" className='btn btn-dark text-white font-weight-bold py-2 my-2'>My Visits</NavLink>
 
             </Container>
         </Container>

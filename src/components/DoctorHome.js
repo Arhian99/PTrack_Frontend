@@ -19,18 +19,21 @@ function DoctorHome() {
     function handshake() {
         stompClient = new Client({
             webSocketFactory: () => new SockJS(SOCKET_URL),
-            connectHeaders: {"Authorization": "Bearer ".concat(user?.jwt)},
+            connectHeaders: {
+                "Authorization": "Bearer ".concat(user?.jwt),
+                // "User": `${user?.doctor?.username}`
+            },
             debug: (msg) => console.log(msg), // comment out in production,
             reconnectDelay: 300000,
             onConnect: () => {
                 console.log("Connected");
                 topicCurrentVisitSubscription = stompClient.subscribe(
-                    "/user/queue/currentVisit",
+                    `/user/queue/currentVisit`,
                     (msg) => {
                         console.log(`Recieved: ${msg}`);
                         setMessage(msg.body);
                     }, 
-                    {"Authorization": "Bearer ".concat(user?.jwt)} // check if possible to remove this header after initial handshake (configure backend) --> 
+                    // {"Authorization": "Bearer ".concat(user?.jwt)} // check if possible to remove this header after initial handshake (configure backend) --> 
                 )
             },
             onDisconnect: () => console.log("Disconnected!"),
@@ -49,8 +52,8 @@ function DoctorHome() {
         <Container className="d-flex flex-column mx-auto vw-75 align-items-center">
             <Container className="p-0 m-0 d-flex flex-column">
                 <h1 className='my-2'>Welcome Dr. {user?.doctor?.username}</h1>
-                <NavLink to="/doctor" className='btn btn-dark text-white font-weight-bold py-2 my-2'>Doctor Lounge</NavLink>
-                <NavLink to="/checkIn" className='btn btn-dark text-white font-weight-bold py-2 my-2'>Check In</NavLink>
+                <NavLink to="/doctor/lounge" className='btn btn-dark text-white font-weight-bold py-2 my-2'>Doctor Lounge</NavLink>
+                <NavLink to="/doctor/checkIn" className='btn btn-dark text-white font-weight-bold py-2 my-2'>Check In</NavLink>
             </Container>
             <Container>
                 <Button onClick={handshake}>Connect</Button>
@@ -58,7 +61,8 @@ function DoctorHome() {
                     stompClient?.publish({
                         destination: "/app/currentVisit",
                         body: JSON.stringify({
-                            "from": `${user?.doctor?.username}`
+                            "from": `${user?.doctor?.username}`,
+                            "to": "Arhian99"
                         })
                     })
                 }}>Send Message</Button>

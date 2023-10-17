@@ -1,13 +1,24 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useCallback } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup'
 import axios from '../api/axios';
 import { getRole } from '../utils/utilities';
 import { Form, Button, Spinner } from 'react-bootstrap';
+import useAuth from '../hooks/useAuth';
+import useLoading from '../hooks/useLoading';
+import SockJS from 'sockjs-client'
+import {Client} from '@stomp/stompjs'
 
-function BeginVisit({user, setLoading, headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
+const SOCKET_URL = 'http://localhost:8080/ws';
+let stompClient = null;
+let topicCurrentVisitSubscription = null;
+
+function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
+    const{user} = useAuth();
+    const{setLoading} = useLoading();
     const[docsAtLocation, setDocsAtLocation] = useState();
     const[loadingDocs, setLoadingDocs] = useState(false);
+    const [message, setMessage] = useState("no messages");
 
     const formik = useFormik({
         initialValues: {
@@ -21,47 +32,22 @@ function BeginVisit({user, setLoading, headers, locations, setErrorMessage, setW
         }),
 
         onSubmit: async (values) => {
-            console.log(values)
-            try {
-                setLoading(true);
-                setErrorMessage(null);
-                setWarningMessage(null);
-                setSuccessMessage(null);
-                
-                const response = await axios.post(
-                    "/api/locations/checkIn",
-                    {
-                        "name": values.location,
-                        "email": getRole(user) === "ROLE_USER" ? user?.user.email : user?.doctor.email,
-                        "role": getRole(user)
-                    },
-                    { headers }
-                )
-                
-                setLoading(false)
-
-                if(response.status === 200){
-                    console.log("Successful Check In!");
-                    console.log(response);
-                    user.user.isCheckedIn = true;
-                    setSuccessMessage("Check In Successful!");
-                }
-                
-            } catch(error) {
-                setLoading(false)
-                console.log(error)
-
-                if(error.response.status === 401){
-                    setErrorMessage("Something went wrong, re-authenticate and try again.")
-                } else {
-                    setErrorMessage(error.response.data);
-                }
-
-            }
+            // TODO - check if the values.doctor passes username or email and handle in backend appropriately
+          
+            stompClient?.publish({
+                destination: "/app/currentVisit",
+                body: JSON.stringify({
+                    "from": `${user?.user?.username}`,
+                    "to": values.doctor,
+                    "patient": `${user?.user?.email}`,
+                    "doctor": values.doctor,
+                    "location": values.location
+                })
+            })
         }
     })
 
-    async function getDoctors(){
+    async function fetchDocsAtLocation(){
         setLoadingDocs(true);
         setErrorMessage(null);
         setWarningMessage(null);
@@ -79,11 +65,10 @@ function BeginVisit({user, setLoading, headers, locations, setErrorMessage, setW
                 setWarningMessage("No doctors currently checked in at the specified location. Choose another location or try again later.")
             }
 
-
         } catch(error){
             setLoadingDocs(false);
             console.log(error);
-    
+
             if(error.response.status === 401){
                 setErrorMessage("Something went wrong, re-authenticate and try again.")
             } else {
@@ -92,12 +77,48 @@ function BeginVisit({user, setLoading, headers, locations, setErrorMessage, setW
         }
     }
 
+
+    const handshake = useCallback((() => {
+        stompClient = new Client({
+            webSocketFactory: () => new SockJS(SOCKET_URL),
+            connectHeaders: {
+                "Authorization": "Bearer ".concat(user?.jwt),
+            },
+            // TODO - comment out in production
+            debug: (msg) => console.log(msg), 
+            reconnectDelay: 300000,
+            onConnect: () => {
+                topicCurrentVisitSubscription = stompClient.subscribe(
+                    `/user/queue/currentVisit`,
+                    (message) => {
+                        console.log(`Recieved: ${message}`);
+                        setMessage(message.body);
+                    }
+                )
+                console.log("WS Connection Established...");
+            },
+            onDisconnect: () => {
+                console.log("WS Disconnected...");
+            },
+            onStompError: (msg) => {
+                console.log('Broker reported error: ' + msg.headers['message'])
+                console.log('Additional details: ' + msg.body);
+            }
+        });
+
+        stompClient.activate();
+    }), [user, stompClient]);
+
     useEffect(() => {
         if(formik.values.location !== ""){
-            getDoctors();
+            fetchDocsAtLocation();
         }
         
     }, [formik.values.location])
+
+    useEffect(() => {
+        handshake();
+    }, []);
 
     return (
         <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>

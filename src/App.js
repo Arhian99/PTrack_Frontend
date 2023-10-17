@@ -16,6 +16,7 @@ import CheckIn from './pages/CheckIn';
 import NewVisit from './pages/NewVisit';
 import CurrentVisit from './pages/CurrentVisit';
 import Visits from './pages/Visits';
+import Visit from './pages/Visit';
 
 function App() {
   return (
@@ -29,12 +30,22 @@ function App() {
       <Route element={<ProtectedRoutes />} >
         <Route element={<HomeNav />} >
           <Route path='/' element={<Home />} />
-          <Route path="patient" element={<PatientLounge />} />
-          <Route path="doctor" element={<DoctorLounge />} />
-          <Route path='/checkIn' element={<CheckIn />} />
-          <Route path='/newVisit' element={<NewVisit />} />
-          <Route path='/currentVisit' element={<CurrentVisit />} />
-          <Route path='/visits' element={<Visits />} />
+
+          <Route path='patient' >
+            <Route path="lounge" element={<PatientLounge />} />
+            <Route path='visits' >
+              <Route index element={<Visits />} />
+              <Route path='new' element={<NewVisit />} />
+              <Route path='current' element={<CurrentVisit />} />
+              <Route path=':id' element={<Visit />} />
+            </Route>
+          </Route>
+          
+          <Route path='doctor' >
+            <Route path="lounge" element={<DoctorLounge />} />
+            <Route path='checkIn' element={<CheckIn />} />
+          </Route>
+          
         </Route>
       </Route>
 
@@ -45,8 +56,7 @@ function App() {
 export default App;
 
 
-/*
-TODO:
+/* TODO 
   - Implement "Thanks for Verifying your Email Page." --> when user clicks Verify Email Button on verification email they get redirected to /verifyEmailPage that says "Thanks for Verifying your Email" and has a "Continue to the App" button.  
   - Build out Patient and Doctor Lounge as "Profile pages"
   - Make/configure 404 error page
@@ -72,4 +82,12 @@ TODO:
       -- JWT Token -> HTTP Cookies (with TTL expiration)
       -- User Object -> Local Storage or Session Storage
           ** if in local storage -> set expiry time and delete user object programmatically, prompt frontend re-authentication upon prolonged inactivity.
+
+
+  - Ensure that Dynamic Routes for Visits works
+    - /patient/visits/{id}
+
+  - Elevate location fetching function/ state and provide locations to entire app as opposed to fetching locations at individual components, implement Caching policy
+  - Elevate Visits fetching function/state and provide user visits to entire app as opposed to fetching visits at individual components, implement Caching policy, implement Caching policy
+      *** Visits MUST be private to signed in user, locations are global
 */

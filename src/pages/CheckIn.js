@@ -28,7 +28,7 @@ function CheckIn() {
         loading ? <Loading /> : 
         <Container className="mt-3">
             <>
-            { isCheckedIn ?
+            { user?.doctor?.isCheckedIn ?
                     <Container>
                         {errorMessage!== null ? <Alert variant='danger'>{errorMessage}</Alert> : null}
                         {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
@@ -36,10 +36,10 @@ function CheckIn() {
 
                         <CheckedIn
                             setLoading={setLoading}
-                            setSuccessMessage={setSuccessMessage}
-                            setErrorMessage={setErrorMessage}
                             headers={headers}
-                            setIsCheckedIn={setIsCheckedIn}
+                            setErrorMessage={setErrorMessage}
+                            setWarningMessage={setWarningMessage}
+                            setSuccessMessage={setSuccessMessage}
                         />
                     </Container>
                 : 
@@ -52,8 +52,8 @@ function CheckIn() {
                             setLoading={setLoading}
                             headers={headers}
                             setErrorMessage={setErrorMessage}
+                            setWarningMessage={setWarningMessage}
                             setSuccessMessage={setSuccessMessage}
-                            setIsCheckedIn={setIsCheckedIn}
                         />
                         <BackButton />
                     </Container>
