@@ -17,6 +17,7 @@ import NewVisit from './pages/NewVisit';
 import CurrentVisit from './pages/CurrentVisit';
 import Visits from './pages/Visits';
 import Visit from './pages/Visit';
+import DoctorVisits from './pages/DoctorVisits';
 
 function App() {
   return (
@@ -44,6 +45,9 @@ function App() {
           <Route path='doctor' >
             <Route path="lounge" element={<DoctorLounge />} />
             <Route path='checkIn' element={<CheckIn />} />
+            <Route path='visits'>
+              <Route index element={<DoctorVisits />} />
+            </Route>
           </Route>
           
         </Route>

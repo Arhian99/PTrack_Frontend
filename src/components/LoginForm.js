@@ -65,11 +65,6 @@ export default function LoginForm({errorMessage, setLoading}) {
                         }
                     }
                 );
-
-                //TODO: Debugging purposes, delete
-                console.log("Login Response: ")
-                console.log(response);
-
                 // after post request has returned, we set loading to false (no longer waiting for backend response)
                 setLoading(false)
 

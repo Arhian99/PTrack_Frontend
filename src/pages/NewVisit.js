@@ -52,13 +52,15 @@ function NewVisit() {
         setLoading(true);
         fetchLocations();
         setLoading(false);
+    }, [])
 
+    useEffect(() => {
         setTimeout(() => {
             setSuccessMessage(null);
             setWarningMessage(null);
             setErrorMessage(null);
         }, 8500)
-    }, [])
+    }, [successMessage, warningMessage, errorMessage])
 
     return (
         loading ? <Loading /> : 

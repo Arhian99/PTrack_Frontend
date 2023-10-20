@@ -2,6 +2,7 @@ import React from 'react'
 import { Button, Card, Container } from 'react-bootstrap'
 import useAuth from '../hooks/useAuth';
 
+// TODO - fetch current visit ??? finish implementing this component
 function CurrentVisit() {
   const{user} = useAuth();
 

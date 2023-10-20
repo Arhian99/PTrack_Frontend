@@ -64,37 +64,3 @@ function CheckIn() {
 }
 
 export default CheckIn;
-
-// return (
-//         isCheckedIn ?
-//             <Container className='mt-3'>
-//                 {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
-//                 {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
-//                 {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
-
-//                 <CheckedIn 
-//                     setSuccessMessage={setSuccessMessage}
-//                     // loading={loading}
-//                     // setLoading={setLoading}
-//                     setErrorMessage={setErrorMessage}
-//                     headers={headers}
-//                     setIsCheckedIn={setIsCheckedIn}
-//                 />
-//             </Container>
-//             : 
-//             <Container className='mt-3'>
-//                 <h1>Check In</h1>
-//                 {errorMessage!== null ? <Alert variant='danger'>{`${errorMessage}`}</Alert> : null}
-//                 {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
-//                 {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
-//                 <DoctorCheckIn
-//                     headers={headers}
-//                     // loading={loading}
-//                     // setLoading={setLoading}
-//                     setErrorMessage={setErrorMessage}
-//                     setSuccessMessage={setSuccessMessage}
-//                     setIsCheckedIn={setIsCheckedIn}
-//                 />
-//                 <BackButton />  
-//             </Container>
-//     )

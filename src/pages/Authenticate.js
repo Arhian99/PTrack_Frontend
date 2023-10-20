@@ -16,22 +16,17 @@ Redirects users that are logged in to the Home page
 Passes loading and errorMessage state variables and functions down to the LoginForm and RegisterForm components
 */
 function Authenticate() {
-    const {user} = useAuth(); // // imports user state variable from global auth context using custom useAuth() hook
     const {loading, setLoading} = useLoading(); // set true when page is waiting for backend response
     const [activeForm, setActiveForm] = useState('login'); // decides which component (LoginForm or RegisterForm) will be rendered based on the value of this state variable
     const [errorMessage, setErrorMessage] = useState(null); // errorMessages returned from the backend are stored in this state variable and rendered in the LoginForm and RegisterForm components
     const navigate = useNavigate(); // custom built in hook by react-router returns navigation object which can be used to navigate programatically.
 
     // the purpose of this is to check for any logged in users that come to this page and redirect them to the home page.
-    useEffect(() =>{
-        //TODO: Debugging purposes, delete
-        console.log(user)
-        console.log(window.localStorage)
-
-        if(user!==null){
-            navigate("/")
-        }
-    })
+    // useEffect(() =>{
+    //     if(user!==null){
+    //         navigate("/")
+    //     }
+    // })
 
     return (
         // if loading displays the loading component, otherwise it displays the forms

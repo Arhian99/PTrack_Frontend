@@ -2,23 +2,23 @@ import React, { useState, useEffect, useCallback } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup'
 import axios from '../api/axios';
-import { getRole } from '../utils/utilities';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import useAuth from '../hooks/useAuth';
 import useLoading from '../hooks/useLoading';
 import SockJS from 'sockjs-client'
 import {Client} from '@stomp/stompjs'
+import { useNavigate } from 'react-router-dom';
 
 const SOCKET_URL = 'http://localhost:8080/ws';
 let stompClient = null;
 let topicCurrentVisitSubscription = null;
 
 function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
-    const{user} = useAuth();
+    const{user, setUser} = useAuth();
     const{setLoading} = useLoading();
     const[docsAtLocation, setDocsAtLocation] = useState();
     const[loadingDocs, setLoadingDocs] = useState(false);
-    const [message, setMessage] = useState("no messages");
+    const navigate = useNavigate();
 
     const formik = useFormik({
         initialValues: {
@@ -31,19 +31,29 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
             doctor: Yup.string().required('Please select a doctor.')
         }),
 
-        onSubmit: async (values) => {
+        onSubmit: async (values, {resetForm}) => {
             // TODO - check if the values.doctor passes username or email and handle in backend appropriately
           
             stompClient?.publish({
-                destination: "/app/currentVisit",
+                destination: "/app/currentVisit/new",
                 body: JSON.stringify({
                     "from": `${user?.user?.username}`,
                     "to": values.doctor,
-                    "patient": `${user?.user?.email}`,
-                    "doctor": values.doctor,
-                    "location": values.location
+                    "patientEmail": `${user?.user?.email}`,
+                    "doctorUsername": values.doctor,
+                    "locationName": values.location
                 })
             })
+            
+            resetForm();
+            setSuccessMessage("Visit Request Sent!")
+            setLoading(true)
+            setTimeout(() => {
+                setLoading(false)
+                navigate("/patient/visits")
+                
+            }, 1000)
+            
         }
     })
 
@@ -58,10 +68,10 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
                 { headers }
             )
         
-            setDocsAtLocation(response.data);
+            setDocsAtLocation(response?.data);
             setLoadingDocs(false);
 
-            if(response.data[0] === undefined){
+            if(response?.data[0] === undefined){
                 setWarningMessage("No doctors currently checked in at the specified location. Choose another location or try again later.")
             }
 
@@ -69,10 +79,10 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
             setLoadingDocs(false);
             console.log(error);
 
-            if(error.response.status === 401){
+            if(error?.response?.status === 401){
                 setErrorMessage("Something went wrong, re-authenticate and try again.")
             } else {
-                setErrorMessage(error.response.data);
+                setErrorMessage(error?.response?.data);
             }
         }
     }
@@ -89,10 +99,15 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
             reconnectDelay: 300000,
             onConnect: () => {
                 topicCurrentVisitSubscription = stompClient.subscribe(
-                    `/user/queue/currentVisit`,
+                    `/user/queue/currentVisit/new`,
                     (message) => {
-                        console.log(`Recieved: ${message}`);
-                        setMessage(message.body);
+                        console.log(`Recieved:`);
+                        console.log(message);
+                        console.log(message.body);
+                        setUser({
+                            ...user,
+                            user: JSON.parse(message.body)
+                        })
                     }
                 )
                 console.log("WS Connection Established...");
