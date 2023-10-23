@@ -8,6 +8,10 @@ import useLoading from '../hooks/useLoading';
 import SockJS from 'sockjs-client'
 import {Client} from '@stomp/stompjs'
 import { useNavigate } from 'react-router-dom';
+import VisitDTO from '../DTOs/VisitDTO';
+import StompMessage from '../DTOs/StompMessage';
+
+
 
 const SOCKET_URL = 'http://localhost:8080/ws';
 let stompClient = null;
@@ -33,16 +37,20 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
 
         onSubmit: async (values, {resetForm}) => {
             // TODO - check if the values.doctor passes username or email and handle in backend appropriately
-          
             stompClient?.publish({
                 destination: "/app/currentVisit/new",
-                body: JSON.stringify({
-                    "from": `${user?.user?.username}`,
-                    "to": values.doctor,
-                    "patientEmail": `${user?.user?.email}`,
-                    "doctorUsername": values.doctor,
-                    "locationName": values.location
-                })
+                body: JSON.stringify(
+                    new StompMessage(
+                        "NewVisitRequest",          // messageType
+                        user?.user?.username,       // senderUsername
+                        values.doctor,              // recipientUsername
+                        VisitDTO.build(             // payload
+                            values.doctor,              // doctorUsername
+                            user?.user?.username,       // patientUsername
+                            values.location,            // locationName
+                        )
+                    )
+                )
             })
             
             resetForm();

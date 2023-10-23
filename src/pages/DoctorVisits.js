@@ -3,6 +3,7 @@ import { Container, Button, Card } from 'react-bootstrap'
 import SockJS from 'sockjs-client';
 import { Client } from '@stomp/stompjs';
 import useAuth from '../hooks/useAuth'
+import StompMessage from '../DTOs/StompMessage';
 
 
 const SOCKET_URL = 'http://localhost:8080/ws';
@@ -46,6 +47,34 @@ function DoctorVisits() {
         console.log(stompClient)
         stompClient.activate();
     }, []);
+
+    function accept(visit){
+        stompClient?.publish({
+            destination: "app/currentVisit/accept",
+            body: JSON.stringify(
+                new StompMessage(
+                    "NewVisitResponse",             // messageType
+                    user?.doctor?.username,         // senderUsername
+                    visit.patientUsername,          // recipientUsername
+                    {"visitID": visit.id}           // payload
+                )
+            )
+        })   
+    }
+
+    function decline(visit){
+        stompClient?.publish({
+            destination: "app/currentVisit/decline",
+            body: JSON.stringify(
+                new StompMessage(
+                    "NewVisitResponse",             // messageType
+                    user?.doctor?.username,         // senderUsername
+                    visit.patientUsername,          // recipientUsername
+                    {"visitID": visit.id}           // payload
+                )
+            )
+        })
+    }
     
     useEffect(() => {
         handshake();
@@ -57,15 +86,6 @@ function DoctorVisits() {
     <Container >
         <h1>Doctor Visits</h1>
         <Container>
-                <Button onClick={() => {
-                    stompClient?.publish({
-                        destination: "/app/currentVisit/new",
-                        body: JSON.stringify({
-                            "from": `${user?.doctor?.username}`,
-                            "to": "Arhian99"
-                        })
-                    })
-                }}>Send Message</Button>
                 <h3>Visits: </h3>
                 {user?.doctor?.currentVisits?.map((visit) => {
                     return(
@@ -78,7 +98,8 @@ function DoctorVisits() {
                                     Date: {visit?.date}
                                 </Card.Text>
                     
-                                {/* <NavLink to={`/patient/visits/${visit?.id.timestamp}`} className='d-block btn btn-dark text-white font-weight-bold py-2 my-2'>See Visit</NavLink> */}
+                                <Button onClick={accept(visit)} >Accept</Button>
+                                <Button onClick={decline(visit)} >Decline</Button>
                             </Card.Body>
                         </Card>
                     )

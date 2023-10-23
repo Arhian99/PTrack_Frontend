@@ -14,7 +14,6 @@ function CheckIn() {
     // eslint-disable-next-line
     const[warningMessage, setWarningMessage] = useState(null);
     const[successMessage, setSuccessMessage] = useState(null);
-    const[isCheckedIn, setIsCheckedIn] = useState(user?.doctor.isCheckedIn);
     const{loading, setLoading} = useLoading();
 
     const headers = useMemo(() => ({

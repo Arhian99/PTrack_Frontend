@@ -1,6 +1,5 @@
 import './App.css';
 import 'axios';
-import Home from './pages/Home'
 // bootstrap
 import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.scss';
@@ -18,8 +17,14 @@ import CurrentVisit from './pages/CurrentVisit';
 import Visits from './pages/Visits';
 import Visit from './pages/Visit';
 import DoctorVisits from './pages/DoctorVisits';
+import useAuth from './hooks/useAuth';
+import DoctorHome from './pages/DoctorHome';
+import PatientHome from './pages/PatientHome';
+import { getRole } from './utils/utilities';
 
 function App() {
+  const{user} = useAuth();
+
   return (
     <Routes>
       {/* public routes */}
@@ -30,7 +35,7 @@ function App() {
       {/* protected routes */}
       <Route element={<ProtectedRoutes />} >
         <Route element={<HomeNav />} >
-          <Route path='/' element={<Home />} />
+          <Route path='/' element={getRole(user) === 'ROLE_USER' ? <PatientHome /> : <DoctorHome />} />
 
           <Route path='patient' >
             <Route path="lounge" element={<PatientLounge />} />

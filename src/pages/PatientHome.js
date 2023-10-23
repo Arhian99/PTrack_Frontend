@@ -8,7 +8,7 @@ This component is rendered when the person logged in is a patient
 */
 export default function PatientHome() {
     const {user} = useAuth();
-    useEffect(() => console.log(user), [])
+   
     return (
         <Container className="d-flex flex-column mx-auto vw-75 align-items-center">
             <Container className="p-0 m-0 d-flex flex-column">
