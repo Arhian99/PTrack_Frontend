@@ -6,11 +6,17 @@ import axios from '../api/axios';
 import useAuth from '../hooks/useAuth';
 import Loading from './Loading';
 import { NavLink } from 'react-router-dom';
+import { Client } from '@stomp/stompjs';
+import SockJS from 'sockjs-client';
 
+
+const SOCKET_URL = 'http://localhost:8080/ws';
+let stompClient = null;
+let topicCurrentVisitSubscription = null;
 
 /* TODO - Handle errors for getVisits() function and render error message, add Spinner and loadingVisits state */
 function Visits() {
-    const { user } = useAuth();
+    const { user, setUser } = useAuth();
     const { loading, setLoading } = useLoading();
     const [visits, setVisits] = useState(null);
 
@@ -21,8 +27,45 @@ function Visits() {
 
     }), [user?.jwt])
 
+    const handshake = useCallback((() => {
+        stompClient = new Client({
+            webSocketFactory: () => new SockJS(SOCKET_URL),
+            connectHeaders: {
+                "Authorization": "Bearer ".concat(user?.jwt),
+            },
+            // TODO - comment out in production
+            debug: (msg) => console.log(msg), 
+            reconnectDelay: 300000,
+            onConnect: () => {
+                topicCurrentVisitSubscription = stompClient.subscribe(
+                    `/user/queue/currentVisit/new`,
+                    (message) => {
+                        console.log(`Recieved:`);
+                        console.log(message);
+                        console.log(message.body);
+                        setUser({
+                            ...user,
+                            user: JSON.parse(message.body)
+                        })
+                    }
+                )
+                console.log("WS Connection Established...");
+            },
+            onDisconnect: () => {
+                console.log("WS Disconnected...");
+            },
+            onStompError: (msg) => {
+                console.log('Broker reported error: ' + msg.headers['message'])
+                console.log('Additional details: ' + msg.body);
+            }
+        });
+
+        stompClient.activate();
+    }), [user, stompClient]);
+
     useEffect(() => {
         fetchVisits();
+        handshake();
         console.log(visits);
     }, [])
 

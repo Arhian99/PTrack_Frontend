@@ -49,8 +49,12 @@ function DoctorVisits() {
     }, []);
 
     function accept(visit){
+        console.log("In Accept");
+        console.log(visit);
+        console.log(visit.id);
+
         stompClient?.publish({
-            destination: "app/currentVisit/accept",
+            destination: "/app/currentVisit/accept",
             body: JSON.stringify(
                 new StompMessage(
                     "NewVisitResponse",             // messageType
@@ -63,8 +67,12 @@ function DoctorVisits() {
     }
 
     function decline(visit){
+        console.log("In decline");
+        console.log(visit);
+        console.log(visit.id);
+
         stompClient?.publish({
-            destination: "app/currentVisit/decline",
+            destination: "/app/currentVisit/decline",
             body: JSON.stringify(
                 new StompMessage(
                     "NewVisitResponse",             // messageType
@@ -87,7 +95,9 @@ function DoctorVisits() {
         <h1>Doctor Visits</h1>
         <Container>
                 <h3>Visits: </h3>
-                {user?.doctor?.currentVisits?.map((visit) => {
+                {user?.doctor?.currentVisits === null || user?.doctor?.currentVisits.length === 0 ? <h4>No current visits</h4> :
+                
+                user?.doctor?.currentVisits?.map((visit) => {
                     return(
                         <Card key={visit?.id.timestamp}>
                             <Card.Body>
@@ -98,8 +108,33 @@ function DoctorVisits() {
                                     Date: {visit?.date}
                                 </Card.Text>
                     
-                                <Button onClick={accept(visit)} >Accept</Button>
-                                <Button onClick={decline(visit)} >Decline</Button>
+                                <Button onClick={() => {
+                                            stompClient?.publish({
+                                                destination: "/app/currentVisit/accept",
+                                                body: JSON.stringify(
+                                                    new StompMessage(
+                                                        "NewVisitResponse",             // messageType
+                                                        user?.doctor?.username,         // senderUsername
+                                                        visit.patientUsername,          // recipientUsername
+                                                        {"visitID": visit.id}           // payload
+                                                    )
+                                                )
+                                            })
+                                }} >Accept</Button>
+
+                                <Button onClick={() => {
+                                            stompClient?.publish({
+                                                destination: "/app/currentVisit/decline",
+                                                body: JSON.stringify(
+                                                    new StompMessage(
+                                                        "NewVisitResponse",             // messageType
+                                                        user?.doctor?.username,         // senderUsername
+                                                        visit.patientUsername,          // recipientUsername
+                                                        {"visitID": visit.id}           // payload
+                                                    )
+                                                )
+                                            })
+                                }} >Decline</Button>
                             </Card.Body>
                         </Card>
                     )
