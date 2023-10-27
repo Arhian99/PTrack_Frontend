@@ -11,7 +11,7 @@ function BackButton({isUnauthorized}) {
     }
 
   return (
-    <Button onClick={goBack}>Go Back</Button>
+    <Button onClick={goBack} className='d-block my-3'>Go Back</Button>
   )
 }
 

@@ -9,6 +9,7 @@ import './App.scss';
 import { AuthProvider } from './context/AuthProvider';
 import {BrowserRouter} from 'react-router-dom'
 import { LoadingProvider } from './context/LoadingProvider';
+import { WebSocketWrapper } from './context/WebSocketWrapper';
 
 // react app entry point
 const root = ReactDOM.createRoot(document.getElementById('root'));
@@ -19,7 +20,9 @@ root.render(
     <BrowserRouter>
       <AuthProvider>
         <LoadingProvider>
-          <App />
+          <WebSocketWrapper>
+            <App />
+          </WebSocketWrapper>
         </LoadingProvider>
       </AuthProvider>
     </BrowserRouter>

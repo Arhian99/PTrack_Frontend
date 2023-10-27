@@ -29,3 +29,17 @@ export function getRole(user) {
     }
 }
 
+export function handleMessage(user, setUser, message) {
+    if(getRole(user) === "ROLE_DOCTOR"){
+        setUser({
+            ...user,
+            doctor: JSON.parse(message.body)
+        })
+    } else if(getRole(user) === "ROLE_USER"){
+        setUser({
+            ...user,
+            user: JSON.parse(message.body)
+        })
+    }
+}
+

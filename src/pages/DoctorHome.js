@@ -10,8 +10,6 @@ This component is rendered when the person logged in is a doctor
 */
 function DoctorHome() {
     const {user} = useAuth();
-    useEffect(() => console.log(user), [])
-
 
     return (
         <Container className="d-flex flex-column mx-auto vw-75 align-items-center">

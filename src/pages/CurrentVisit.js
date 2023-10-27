@@ -1,6 +1,7 @@
 import React from 'react'
 import { Button, Card, Container } from 'react-bootstrap'
 import useAuth from '../hooks/useAuth';
+import BackButton from '../components/BackButton';
 
 // TODO - fetch current visit ??? finish implementing this component
 function CurrentVisit() {
@@ -21,6 +22,8 @@ function CurrentVisit() {
           <Button>See Docs</Button> <Button>Send Docs</Button>
         </Card.Body>
       </Card>
+
+      <BackButton />
     </Container>
   )
 }

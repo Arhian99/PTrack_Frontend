@@ -10,19 +10,21 @@ import {Client} from '@stomp/stompjs'
 import { useNavigate } from 'react-router-dom';
 import VisitDTO from '../DTOs/VisitDTO';
 import StompMessage from '../DTOs/StompMessage';
+import useStomp from '../hooks/useStomp';
 
 
 
-const SOCKET_URL = 'http://localhost:8080/ws';
-let stompClient = null;
-let topicCurrentVisitSubscription = null;
+// const SOCKET_URL = 'http://localhost:8080/ws';
+// let stompClient = null;
+// let topicCurrentVisitSubscription = null;
 
-function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
-    const{user, setUser} = useAuth();
+function NewVisitForm({headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
+    const{user} = useAuth();
     const{setLoading} = useLoading();
     const[docsAtLocation, setDocsAtLocation] = useState();
     const[loadingDocs, setLoadingDocs] = useState(false);
     const navigate = useNavigate();
+    const stompClient = useStomp();
 
     const formik = useFormik({
         initialValues: {
@@ -37,7 +39,7 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
 
         onSubmit: async (values, {resetForm}) => {
             // TODO - check if the values.doctor passes username or email and handle in backend appropriately
-            stompClient?.publish({
+            stompClient.current.publish({
                 destination: "/app/currentVisit/new",
                 body: JSON.stringify(
                     new StompMessage(
@@ -95,53 +97,12 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
         }
     }
 
-
-    const handshake = useCallback((() => {
-        stompClient = new Client({
-            webSocketFactory: () => new SockJS(SOCKET_URL),
-            connectHeaders: {
-                "Authorization": "Bearer ".concat(user?.jwt),
-            },
-            // TODO - comment out in production
-            debug: (msg) => console.log(msg), 
-            reconnectDelay: 300000,
-            onConnect: () => {
-                topicCurrentVisitSubscription = stompClient.subscribe(
-                    `/user/queue/currentVisit/new`,
-                    (message) => {
-                        console.log(`Recieved:`);
-                        console.log(message);
-                        console.log(message.body);
-                        setUser({
-                            ...user,
-                            user: JSON.parse(message.body)
-                        })
-                    }
-                )
-                console.log("WS Connection Established...");
-            },
-            onDisconnect: () => {
-                console.log("WS Disconnected...");
-            },
-            onStompError: (msg) => {
-                console.log('Broker reported error: ' + msg.headers['message'])
-                console.log('Additional details: ' + msg.body);
-            }
-        });
-
-        stompClient.activate();
-    }), [user, stompClient]);
-
     useEffect(() => {
         if(formik.values.location !== ""){
             fetchDocsAtLocation();
         }
         
     }, [formik.values.location])
-
-    useEffect(() => {
-        handshake();
-    }, []);
 
     return (
         <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
@@ -190,4 +151,4 @@ function BeginVisit({headers, locations, setErrorMessage, setWarningMessage, set
     )
 }
 
-export default BeginVisit;
+export default NewVisitForm;

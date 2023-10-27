@@ -21,6 +21,7 @@ import useAuth from './hooks/useAuth';
 import DoctorHome from './pages/DoctorHome';
 import PatientHome from './pages/PatientHome';
 import { getRole } from './utils/utilities';
+import { WebSocketWrapper } from './context/WebSocketWrapper';
 
 function App() {
   const{user} = useAuth();
@@ -34,30 +35,29 @@ function App() {
 
       {/* protected routes */}
       <Route element={<ProtectedRoutes />} >
-        <Route element={<HomeNav />} >
-          <Route path='/' element={getRole(user) === 'ROLE_USER' ? <PatientHome /> : <DoctorHome />} />
+          <Route element={<HomeNav />} >
+            <Route path='/' element={getRole(user) === 'ROLE_USER' ? <PatientHome /> : <DoctorHome />} />
 
-          <Route path='patient' >
-            <Route path="lounge" element={<PatientLounge />} />
-            <Route path='visits' >
-              <Route index element={<Visits />} />
-              <Route path='new' element={<NewVisit />} />
-              <Route path='current' element={<CurrentVisit />} />
-              <Route path=':id' element={<Visit />} />
+            <Route path='patient' >
+              <Route path="lounge" element={<PatientLounge />} />
+              <Route path='visits' >
+                <Route index element={<Visits />} />
+                <Route path='new' element={<NewVisit />} />
+                <Route path='current' element={<CurrentVisit />} />
+                <Route path=':id' element={<Visit />} />
+              </Route>
             </Route>
-          </Route>
-          
-          <Route path='doctor' >
-            <Route path="lounge" element={<DoctorLounge />} />
-            <Route path='checkIn' element={<CheckIn />} />
-            <Route path='visits'>
-              <Route index element={<DoctorVisits />} />
+            
+            <Route path='doctor' >
+              <Route path="lounge" element={<DoctorLounge />} />
+              <Route path='checkIn' element={<CheckIn />} />
+              <Route path='visits'>
+                <Route index element={<DoctorVisits />} />
+              </Route>
             </Route>
+            
           </Route>
-          
-        </Route>
       </Route>
-
     </Routes>
   )
 }

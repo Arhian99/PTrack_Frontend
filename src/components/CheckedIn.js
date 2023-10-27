@@ -3,6 +3,8 @@ import { Button, Container } from 'react-bootstrap'
 import useAuth from '../hooks/useAuth'
 import { getRole } from '../utils/utilities';
 import axios from '../api/axios';
+import { NavLink } from 'react-router-dom';
+import BackButton from './BackButton';
 
 function CheckedIn({setLoading, headers, setErrorMessage, setWarningMessage, setSuccessMessage}) {
     const{user, setUser} = useAuth();
@@ -46,6 +48,7 @@ function CheckedIn({setLoading, headers, setErrorMessage, setWarningMessage, set
     <Container fluid className='m-0 p-0'>
         <h1>You are Checked in @ {user?.doctor?.currentLocation?.name}</h1>
         <Button onClick={handleCheckOut}>Check Out</Button>
+        <BackButton />
     </Container>
   )
 }

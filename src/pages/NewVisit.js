@@ -4,11 +4,7 @@ import { Alert, Container } from 'react-bootstrap'
 import Loading from '../pages/Loading'
 import useAuth from '../hooks/useAuth';
 import axios from '../api/axios';
-import { getRole } from '../utils/utilities';
-import DoctorCheckIn from '../components/DoctorCheckIn';
-import PatientCheckIn from '../components/BeginVisit';
-import CheckedIn from '../components/CheckedIn';
-import BeginVisit from '../components/BeginVisit';
+import NewVisitForm from '../components/NewVisitForm';
 import useLoading from '../hooks/useLoading';
 
 function NewVisit() {
@@ -70,7 +66,7 @@ function NewVisit() {
             {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
             {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
 
-            <BeginVisit
+            <NewVisitForm
                 headers={headers}
                 locations={locations}
                 setErrorMessage={setErrorMessage}
