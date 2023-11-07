@@ -1,42 +1,16 @@
-import React from 'react'
-import { useEffect, useState, useMemo } from 'react'
-import { Container, Card, Accordion, Spinner } from 'react-bootstrap'
-import useLoading from '../hooks/useLoading';
-import axios from '../api/axios';
+import React, {useEffect, useState} from 'react'
+import {Button, Container, Card, Accordion, Spinner, Alert } from 'react-bootstrap'
 import useAuth from '../hooks/useAuth';
 import { NavLink } from 'react-router-dom';
 import BackButton from '../components/BackButton';
+import { useQueryClient } from '@tanstack/react-query';
+import { updatePtVisits } from '../api/dataFetching';
 
-/* TODO - Handle errors for getVisits() function and render error message, add Spinner and loadingVisits state */
 function Visits() {
     const { user } = useAuth();
-    const { loading, setLoading } = useLoading();
-    const [visits, setVisits] = useState(null);
-    const headers = useMemo(() => ({
-        Authorization: 'Bearer '.concat(user?.jwt),
-        'Content-Type': 'application/json',
-        withCredentials: true
-
-    }), [user?.jwt])
-
-    useEffect(() => {
-        fetchVisits();
-    }, [])
-
-    async function fetchVisits() {
-        try {
-            setLoading(true);
-            const response = await axios.get(
-                "/api/visits/byPatient?patient=".concat(user?.user?.username),
-                { headers }
-            )
-            console.log(response.data)
-            setVisits(response.data)
-            setLoading(false)
-        } catch (error) {
-            console.log(error);
-        }
-    };
+    const queryClient = useQueryClient();
+    const [visitDataState, setVisitDataState] = useState(queryClient.getQueryState(['allPtVisits', user?.user?.username]));
+    useEffect(()=> {updatePtVisits(visitDataState, setVisitDataState, queryClient, user)}, [visitDataState]);
 
     return ( 
             <Container>
@@ -72,16 +46,18 @@ function Visits() {
                     <Accordion.Item eventKey='past'>
                         <Accordion.Header>Past Visits</Accordion.Header>
                         <Accordion.Body>
-                            {   loading ? <Spinner animation="border" variant="success" /> :
-                                visits?.length === 0 ?
+                            {
+                                visitDataState?.status==="loading" ? <Spinner animation="border" variant="success" /> :
+                                visitDataState?.status==="error" ? <Alert variant='danger'>{visitDataState.error}</Alert> :
+                                visitDataState?.status==="success" && visitDataState?.data?.data.length === 0 ?
                                     <>
                                         You have no past visits.
                                         <NavLink to="/patient/visits/new" className='d-block btn btn-dark text-white font-weight-bold py-2 my-2'>New Visit</NavLink>
                                     </> 
                                     : 
-                                    visits?.map((visit) => {
+                                    visitDataState?.data?.data.map((visit) => {
                                         return (
-                                            <Card key={visit?.id.timestamp}>
+                                            <Card key={visit?.id}>
                                                 <Card.Body>
                                                     <Card.Text>
                                                         Doctor: {visit?.doctorUsername}<br />
@@ -90,7 +66,7 @@ function Visits() {
                                                         Date: {visit?.date}
                                                     </Card.Text>
 
-                                                    <NavLink to={`/patient/visits/${visit?.id.timestamp}`} className='d-block btn btn-dark text-white font-weight-bold py-2 my-2'>See Visit</NavLink>
+                                                    <NavLink to={`/patient/visits/${visit?.id}`} className='d-block btn btn-dark text-white font-weight-bold py-2 my-2'>See Visit</NavLink>
                                                 </Card.Body>
                                             </Card>
                                         )
@@ -98,9 +74,10 @@ function Visits() {
                             }
                         </Accordion.Body>
                     </Accordion.Item>
-
-                    <BackButton />
                 </Accordion>
+
+                <BackButton />
+
             </Container>
         
     )

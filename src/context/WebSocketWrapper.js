@@ -1,6 +1,4 @@
 import React, { useEffect, createContext, useState } from 'react'
-import { useCallback } from 'react';
-import { Outlet } from 'react-router-dom'
 import SockJS from 'sockjs-client';
 import useAuth from '../hooks/useAuth';
 import { Client } from '@stomp/stompjs';
@@ -10,7 +8,6 @@ import { handleMessage } from '../utils/utilities';
 const SOCKET_URL = 'http://localhost:8080/ws';
 let topicCurrentVisitSubscription = null;
 const StompContext = createContext({});
-let newClient = null;
 
 export function WebSocketWrapper({ children }) {
     const {user, setUser} = useAuth();
@@ -25,7 +22,7 @@ export function WebSocketWrapper({ children }) {
             debug: (msg) => {
                 console.log(msg);
             },
-            reconnectDelay: 500,
+            reconnectDelay: (1000),
             onConnect: () => {
                 topicCurrentVisitSubscription = stompClient.current.subscribe(
                     "/user/queue/currentVisit/new",

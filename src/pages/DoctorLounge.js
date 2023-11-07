@@ -3,7 +3,7 @@ import useAuth from '../hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
 import { Container } from 'react-bootstrap';
 import BackButton from '../components/BackButton';
-
+import { getRole } from '../utils/utilities';
 
 /* 
 This component contains all the profile information for Doctors
@@ -13,7 +13,7 @@ export default function DoctorLounge() {
     const navigate = useNavigate();
 
     useEffect(() => {
-        if(user?.doctor?.roles[0].name !== "ROLE_DOCTOR") {
+        if(getRole(user) !== "ROLE_DOCTOR") {
           navigate("/unauthorized")
         }
     }, [])

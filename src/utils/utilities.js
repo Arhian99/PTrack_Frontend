@@ -1,4 +1,29 @@
 
+
+export function getHeaders(user){
+    return {
+        headers: {
+            Authorization: 'Bearer '.concat(user?.jwt),
+            'Content-Type': 'application/json',
+            withCredentials: true
+        }
+    }
+}
+
+export function formatVisitsURL(user) {
+    switch (getRole(user)) {
+        case 'ROLE_USER': return "/api/visits/byPatient?patient=".concat(user?.user?.username)
+        case 'ROLE_DOCTOR': return "/api/visits/byDoctor?doctor=".concat(user?.doctor?.username)
+    }
+}
+
+export function getUsername(user) {
+    switch (getRole(user)) {
+        case 'ROLE_USER': return user?.user?.username
+        case 'ROLE_DOCTOR': return user?.doctor?.username
+    }
+}
+
 export function formatBackendRegistrationURL(activeRole) {
     let url = "/auth/save";
     if(activeRole === 'ROLE_USER'){
@@ -43,3 +68,14 @@ export function handleMessage(user, setUser, message) {
     }
 }
 
+export function handleLogout(stompClient, setUser, navigate){
+    stompClient.current.deactivate();
+    setUser(null); // sets global auth user to null
+    window.localStorage.setItem('user', null) // sets 'user' object stored in localStorage to null.
+    navigate('/Authenticate');
+}
+
+export function toggleAuthenticateForm(value, setActiveForm, setErrorMessage){
+    setActiveForm(value);
+    setErrorMessage(null)
+}

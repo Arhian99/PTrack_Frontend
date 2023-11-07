@@ -1,30 +1,21 @@
 import React, {useState, useMemo, useEffect} from 'react'
 import BackButton from '../components/BackButton'
 import { Alert, Container } from 'react-bootstrap'
-import Loading from '../pages/Loading'
 import useAuth from '../hooks/useAuth';
-
-import DoctorCheckIn from '../components/DoctorCheckIn';
+import DoctorCheckInForm from '../components/DoctorCheckInForm';
 import CheckedIn from '../components/CheckedIn';
 import useLoading from '../hooks/useLoading';
+import Loading from './Loading';
 
 function CheckIn() {
     const {user} = useAuth();
     const [errorMessage, setErrorMessage] = useState(null);
-    // eslint-disable-next-line
-    const[warningMessage, setWarningMessage] = useState(null);
-    const[successMessage, setSuccessMessage] = useState(null);
-    const{loading, setLoading} = useLoading();
-
-    const headers = useMemo(() => ({
-        Authorization: 'Bearer '.concat(user?.jwt),
-        'Content-Type': 'application/json',
-        withCredentials: true
-    }), [user?.jwt])
-
+    const [warningMessage, setWarningMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
+    const {loading, setLoading} = useLoading();
 
     return (
-        loading ? <Loading /> : 
+        loading ? <Loading /> :
         <Container className="mt-3">
             <>
             { user?.doctor?.isCheckedIn ?
@@ -35,7 +26,6 @@ function CheckIn() {
 
                         <CheckedIn
                             setLoading={setLoading}
-                            headers={headers}
                             setErrorMessage={setErrorMessage}
                             setWarningMessage={setWarningMessage}
                             setSuccessMessage={setSuccessMessage}
@@ -47,9 +37,8 @@ function CheckIn() {
                         {errorMessage!== null ? <Alert variant='danger'>{errorMessage}</Alert> : null}
                         {warningMessage !== null ? <Alert variant='warning'>{warningMessage}</Alert> : null }
                         {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
-                        <DoctorCheckIn
+                        <DoctorCheckInForm
                             setLoading={setLoading}
-                            headers={headers}
                             setErrorMessage={setErrorMessage}
                             setWarningMessage={setWarningMessage}
                             setSuccessMessage={setSuccessMessage}

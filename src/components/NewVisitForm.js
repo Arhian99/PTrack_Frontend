@@ -1,30 +1,37 @@
-import React, { useState, useEffect, useCallback } from 'react'
+import React, { useState, useEffect } from 'react'
 import { useFormik } from 'formik';
 import * as Yup from 'yup'
-import axios from '../api/axios';
 import { Form, Button, Spinner } from 'react-bootstrap';
 import useAuth from '../hooks/useAuth';
 import useLoading from '../hooks/useLoading';
-import SockJS from 'sockjs-client'
-import {Client} from '@stomp/stompjs'
 import { useNavigate } from 'react-router-dom';
 import VisitDTO from '../DTOs/VisitDTO';
 import StompMessage from '../DTOs/StompMessage';
 import useStomp from '../hooks/useStomp';
+import { useQueryClient } from '@tanstack/react-query';
+import { fetchDocsAtLocation, newVisitRequestStomp, updateLocations } from '../api/dataFetching';
 
 
-
-// const SOCKET_URL = 'http://localhost:8080/ws';
-// let stompClient = null;
-// let topicCurrentVisitSubscription = null;
-
-function NewVisitForm({headers, locations, setErrorMessage, setWarningMessage, setSuccessMessage }) {
+function NewVisitForm({setErrorMessage, setWarningMessage, setSuccessMessage }) {
     const{user} = useAuth();
     const{setLoading} = useLoading();
     const[docsAtLocation, setDocsAtLocation] = useState();
     const[loadingDocs, setLoadingDocs] = useState(false);
     const navigate = useNavigate();
     const stompClient = useStomp();
+    const queryClient = useQueryClient();
+    const [locationsDataState, setLocationsDataState] = useState(queryClient.getQueryState(['allLocations']))
+    
+    useEffect(() => {
+        locationsDataState?.status==="loading" ? setLoading(true) : setLoading(false)
+        updateLocations(locationsDataState, setLocationsDataState, queryClient)
+    }, [locationsDataState]);
+
+    useEffect(() => {
+        if(formik.values.location !== ""){
+            fetchDocsAtLocation(user, formik.values.location, setDocsAtLocation, setLoadingDocs, setErrorMessage, setWarningMessage);
+        }
+    }, [formik.values.location])
 
     const formik = useFormik({
         initialValues: {
@@ -37,72 +44,10 @@ function NewVisitForm({headers, locations, setErrorMessage, setWarningMessage, s
             doctor: Yup.string().required('Please select a doctor.')
         }),
 
-        onSubmit: async (values, {resetForm}) => {
-            // TODO - check if the values.doctor passes username or email and handle in backend appropriately
-            stompClient.current.publish({
-                destination: "/app/currentVisit/new",
-                body: JSON.stringify(
-                    new StompMessage(
-                        "NewVisitRequest",          // messageType
-                        user?.user?.username,       // senderUsername
-                        values.doctor,              // recipientUsername
-                        VisitDTO.build(             // payload
-                            values.doctor,              // doctorUsername
-                            user?.user?.username,       // patientUsername
-                            values.location,            // locationName
-                        )
-                    )
-                )
-            })
-            
-            resetForm();
-            setSuccessMessage("Visit Request Sent!")
-            setLoading(true)
-            setTimeout(() => {
-                setLoading(false)
-                navigate("/patient/visits")
-                
-            }, 1000)
-            
+        onSubmit: (values, {resetForm}) => {
+            newVisitRequestStomp(values, {resetForm}, stompClient, queryClient, user, setSuccessMessage, setLoading, navigate)
         }
     })
-
-    async function fetchDocsAtLocation(){
-        setLoadingDocs(true);
-        setErrorMessage(null);
-        setWarningMessage(null);
-
-        try {
-            const response = await axios.get(
-                "/api/locations/activeDoctors?location_name="+formik.values.location,
-                { headers }
-            )
-        
-            setDocsAtLocation(response?.data);
-            setLoadingDocs(false);
-
-            if(response?.data[0] === undefined){
-                setWarningMessage("No doctors currently checked in at the specified location. Choose another location or try again later.")
-            }
-
-        } catch(error){
-            setLoadingDocs(false);
-            console.log(error);
-
-            if(error?.response?.status === 401){
-                setErrorMessage("Something went wrong, re-authenticate and try again.")
-            } else {
-                setErrorMessage(error?.response?.data);
-            }
-        }
-    }
-
-    useEffect(() => {
-        if(formik.values.location !== ""){
-            fetchDocsAtLocation();
-        }
-        
-    }, [formik.values.location])
 
     return (
         <Form onSubmit={formik.handleSubmit} style={{width: "250px"}} className='my-4'>
@@ -115,7 +60,7 @@ function NewVisitForm({headers, locations, setErrorMessage, setWarningMessage, s
                         value={formik.values.location}
                         >
                             <option>Select a Location</option>
-                            {locations?.map((location) => <option value={location.name} key={location.name}>{location.name}</option>)}
+                            {locationsDataState?.data?.data.map((location) => <option value={location.name} key={location.name}>{location.name}</option>)}
                     </Form.Select>
                     <Form.Text className='text-danger'>
                         {formik.touched.location && formik.errors.location ? (

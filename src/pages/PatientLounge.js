@@ -3,7 +3,7 @@ import useAuth from "../hooks/useAuth";
 import { Container } from "react-bootstrap";
 import { useEffect } from "react";
 import BackButton from "../components/BackButton";
-
+import { getRole } from "../utils/utilities";
 /* 
 This component contains all the profile information for Patients
 */
@@ -12,7 +12,7 @@ export default function PatientLounge() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    if(user?.user?.roles[0].name !== "ROLE_USER") {
+    if(getRole(user) !== "ROLE_USER") {
       navigate("/unauthorized")
     }
   }, [])

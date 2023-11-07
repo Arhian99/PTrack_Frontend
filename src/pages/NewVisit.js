@@ -8,47 +8,10 @@ import NewVisitForm from '../components/NewVisitForm';
 import useLoading from '../hooks/useLoading';
 
 function NewVisit() {
-    const {user} = useAuth();
-    const {loading, setLoading} = useLoading();
+    const {loading} = useLoading();
     const [errorMessage, setErrorMessage] = useState(null);
-    const[warningMessage, setWarningMessage] = useState(null);
-    const[successMessage, setSuccessMessage] = useState(null);
-    const [locations, setLocations] = useState([]);
-    const headers = useMemo(() => ({
-        Authorization: 'Bearer '.concat(user?.jwt),
-        'Content-Type': 'application/json',
-        withCredentials: true
-
-    }), [user?.jwt])
-
-    const fetchLocations = useCallback((async () =>{
-        setErrorMessage(null)
-        try{
-            setLoading(true)
-            const response = await axios.get(
-                "/api/locations/all",
-                { headers },
-            )
-            setLocations(response.data);
-            setLoading(false)
-
-        } catch(error) {
-            setLoading(false)
-            console.log(error)
-            // 401 --> unauthorized
-            if(error.response.status === 401){
-                setErrorMessage("Something went wrong, re-authenticate and try again.")
-            } else {
-                setErrorMessage(error.response.data);
-            }
-        }
-    }), [headers, user]);
-    
-    useEffect(() => {
-        setLoading(true);
-        fetchLocations();
-        setLoading(false);
-    }, [])
+    const [warningMessage, setWarningMessage] = useState(null);
+    const [successMessage, setSuccessMessage] = useState(null);
 
     useEffect(() => {
         setTimeout(() => {
@@ -67,8 +30,6 @@ function NewVisit() {
             {successMessage!== null ? <Alert variant='success'>{successMessage}</Alert> : null }
 
             <NewVisitForm
-                headers={headers}
-                locations={locations}
                 setErrorMessage={setErrorMessage}
                 setWarningMessage={setWarningMessage}
                 setSuccessMessage={setSuccessMessage}

@@ -10,9 +10,11 @@ import { AuthProvider } from './context/AuthProvider';
 import {BrowserRouter} from 'react-router-dom'
 import { LoadingProvider } from './context/LoadingProvider';
 import { WebSocketWrapper } from './context/WebSocketWrapper';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 
 // react app entry point
 const root = ReactDOM.createRoot(document.getElementById('root'));
+const queryClient = new QueryClient();
 
 root.render(
   <React.StrictMode>
@@ -21,7 +23,9 @@ root.render(
       <AuthProvider>
         <LoadingProvider>
           <WebSocketWrapper>
-            <App />
+            <QueryClientProvider client={queryClient} >
+              <App />
+            </QueryClientProvider>
           </WebSocketWrapper>
         </LoadingProvider>
       </AuthProvider>
